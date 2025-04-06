@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Analytics;
 using static UnityEditor.PlayerSettings;
 
 // Al diseñarlo hay que tener en cuenta qué vamos a hacer cuando se producen ciertos
@@ -28,6 +29,7 @@ public class Tracker
     private string DEFAULT_SERVER_DOMAIN = "https://example.com";
     private const int EVENTS_TO_WRITE_SIZE = 50;
     private const string SALT = "UAJ-Grupo1";
+    private long SESSION_ID; // ID de la sesion.
     // TODO: Crear struct Event con su sessionId, id, timestamp
     // TODO: Crear eventos genericos
     // TODO: Manejar eventos puntuales donde se guardan en escenas especificas
@@ -45,6 +47,7 @@ public class Tracker
 
     public Tracker(string logFilename, Format chosenFormat, PersistenceType persType)
     {
+        SESSION_ID = AnalyticsSessionInfo.sessionId; // Hace falta el Unity Analitics para sacar el id. ???
         switch (persType)
         {
             case PersistenceType.LOCAL:
@@ -102,7 +105,16 @@ public class Tracker
         // cada X tiempo y mientras tanto guardar los datos en local
     }
 
-    // TODO: Singleton
+    // Singleton
+    static private Tracker _instance;
+    static public Tracker Instance
+    {
+        get
+        {
+            return _instance;
+        }
+    }
+
     // TODO: SendEvent()
     // TODO: Write()
 
