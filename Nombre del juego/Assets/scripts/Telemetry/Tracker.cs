@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 using static UnityEditor.PlayerSettings;
 
 // Al diseñarlo hay que tener en cuenta qué vamos a hacer cuando se producen ciertos
@@ -38,6 +39,9 @@ public class Tracker
     // eventos...
     //private ConcurrentQueue<Event> eventQueue;
     Format format;
+
+    //String donde se guarda el archivo con los datos de telemetría
+    private string route;
 
     public Tracker(string logFilename, Format chosenFormat, PersistenceType persType)
     {
@@ -78,7 +82,12 @@ public class Tracker
      */
     private void CreateLocalLogFile(string logFilename)
     {
+        //Si se va a crear aquí el archivo a lo mejor lo suyo es que sea el start?
+        route = Application.dataPath + "/telemetria.txt";
+        Debug.Log("Archivo telemetria: " + route);
 
+        //No hace falta cerrar el archivo porque vamos a escribir con 
+        //File.AppendAllText(route, "json con los datos" + '\n');
     }
 
     // Cerrar el FileStream??
@@ -111,7 +120,13 @@ public class Tracker
      */
     public void Write(string key/*, ... value*/)
     {
+        //Para escribir seguir el siguiente esquema:
 
+        //Evento e
+        //string json = JsonUtility.ToJson(e)
+        //File.AppendAllText(route, json + '\n');
+
+        //Con esto debería escribirse todo en un mismo archivo y cerrarse correctamente
     }
 
     // TODO: Bucle de lectura-escritura del archivo de guardado
