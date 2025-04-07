@@ -58,7 +58,7 @@ public abstract class Event
     }
 
     
-    // Metodo abstracto que debe ser implementado por cada tipo de event para definir como se guardan sus daos 
+    // Metodo abstracto que debe ser implementado por cada tipo de event para definir como se guardan sus datos 
     
     public abstract void WriteData();
 }

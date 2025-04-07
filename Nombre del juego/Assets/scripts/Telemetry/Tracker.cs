@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -122,12 +123,9 @@ public class Tracker
      */
     public void FlushQueue()
     {
-        // Evento auxiliar para volcar el siguiente evento de la cola
-        Event evt = null;
-
         // Mientras se este vaciando la cola y siga habiendo eventos
         // se ejecuta el bucle
-        while (eventQueue.TryDequeue(out Event evt)
+        while (eventQueue.TryDequeue(out Event evt))
         {
             // Programacion defensiva por si hay un evento vacio
             if (evt != null)
@@ -141,6 +139,34 @@ public class Tracker
 
     // TODO: SendEvent()
     // TODO: Write()
+
+    /// <summary>
+    /// Mete un elemento en la cola de eventos.
+    /// </summary>
+    /// <param name="e">Evento a meter a la cola.</param> 
+    public void AddEvent(Event e)
+    {
+        eventQueue.Enqueue(e);
+        // Si supera un maximo escribe.
+        if (eventQueue.Count >= EVENTS_TO_WRITE_SIZE)
+        {
+            WriteData();
+        }
+    }
+
+    /// <summary>
+    /// Escribe la cola cuando se superen cierto elementos (+ si se mete por tiempo).
+    /// </summary>
+    public void WriteData()
+    {
+        int i = 0;
+        while (eventQueue.TryDequeue(out Event e) && i < EVENTS_TO_WRITE_SIZE)
+        {
+            if (e != null)
+                e.WriteData();
+            i++;
+        }
+    }
 
     /*
      * Se llama desde el resto de scripts:
