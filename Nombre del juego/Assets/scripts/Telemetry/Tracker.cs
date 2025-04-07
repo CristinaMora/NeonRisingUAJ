@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Analytics;
 using static UnityEditor.PlayerSettings;
 
 // Al diseñarlo hay que tener en cuenta qué vamos a hacer cuando se producen ciertos
@@ -45,9 +44,10 @@ public class Tracker
     //String donde se guarda el archivo con los datos de telemetría
     private string route;
 
-    public Tracker(string logFilename, Format chosenFormat, PersistenceType persType)
+    public Tracker(string logFilename, Format chosenFormat, PersistenceType persType, long sesID)
     {
-        SESSION_ID = AnalyticsSessionInfo.sessionId; // Hace falta el Unity Analitics para sacar el id. ???
+        SESSION_ID = sesID;
+
         switch (persType)
         {
             case PersistenceType.LOCAL:
@@ -60,6 +60,8 @@ public class Tracker
         }
 
         // ...
+        
+        _instance = this;
     }
 
     /*
