@@ -38,7 +38,7 @@ public class Tracker
     // TODO: Crear la cola de eventos, importante investigar sobre la concurrencia
     // mientras se está leyendo y eliminando de la cola, también se están añadiendo
     // eventos...
-    //private ConcurrentQueue<Event> eventQueue;
+    private ConcurrentQueue<Event> eventQueue;
     Format format;
 
     //String donde se guarda el archivo con los datos de telemetría
@@ -60,7 +60,7 @@ public class Tracker
         }
 
         // ...
-        
+
         _instance = this;
     }
 
@@ -115,6 +115,28 @@ public class Tracker
         {
             return _instance;
         }
+    }
+
+    /*
+     *  Metodo que escribe toda la cola y la vacia 
+     */
+    public void FlushQueue()
+    {
+        // Evento auxiliar para volcar el siguiente evento de la cola
+        Event evt = null;
+
+        // Mientras se este vaciando la cola y siga habiendo eventos
+        // se ejecuta el bucle
+        while (eventQueue.TryDequeue(out Event evt)
+        {
+            // Programacion defensiva por si hay un evento vacio
+            if (evt != null)
+                // Escribimos el evento
+                evt.WriteData();
+        }
+        // --Creo que puede darse el caso de que un elemento de la cola no se haya eliminado, si esto pasa no se como actuar (Consultar al grupo) --
+        // Eliminamos los elementos de la cola
+        // eventQueue.clear();
     }
 
     // TODO: SendEvent()
