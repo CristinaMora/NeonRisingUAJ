@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using static UnityEditor.PlayerSettings;
 
 // Al diseñarlo hay que tener en cuenta qué vamos a hacer cuando se producen ciertos
@@ -24,35 +25,57 @@ using static UnityEditor.PlayerSettings;
 
 public class Tracker
 {
-    public enum Format { JSON, CSV };
+    public enum Format { JSON, CSV }; // Formatos disponibles para guardar los eventos
     public enum PersistenceType { LOCAL, NETWORK };
-    private string DEFAULT_SERVER_DOMAIN = "https://example.com";
-    private const int EVENTS_TO_WRITE_SIZE = 50;
-    private const string SALT = "UAJ-Grupo1";
-    private long SESSION_ID; // ID de la sesion.
-    // TODO: Crear struct Event con su sessionId, id, timestamp
+
+    private const int EVENTS_TO_WRITE_SIZE = 50;// Numero limite de eventos para escribir
+    private const string SALT = "UAJ-Grupo1";   // Salt que se usa para generar IDs unicas
+    private long SESSION_ID;                    // ID de la sesion
+
     // TODO: Crear eventos genericos
     // TODO: Manejar eventos puntuales donde se guardan en escenas especificas
-    // TODO: Manejar eventos muestreables (solamente escribir cada cierto tiempo)
 
-    private FileStream logFile;
+    private string localPath;   // Ruta en donde se guarda el archivo con los datos
+                                // de telemetría (local)
+    private FileStream logFile; // Stream para los datos en local
+    Format format;              // Formato de escritura de los eventos
+
     // TODO: Crear la cola de eventos, importante investigar sobre la concurrencia
     // mientras se está leyendo y eliminando de la cola, también se están añadiendo
     // eventos...
+    // ConcurrentQueue es thread-safe lo que indica que si creamos un hilo aparte
+    // gestiona las concurrencias que pueda haber
+    // https://learn.microsoft.com/en-us/dotnet/api/system.collections.concurrent.concurrentqueue-1?view=net-9.0
+    // Opcional: Serialización y persistencia en una hebra independiente de la del videojuego.
     private ConcurrentQueue<Event> eventQueue;
-    Format format;
+    private Thread eventThread; // Hilo con bucle que gestiona la cola de eventos
 
-    //String donde se guarda el archivo con los datos de telemetría
-    private string route;
+    // Opcional: Añadir el envío de trazas a un servidor web.
+    private string DEFAULT_SERVER_DOMAIN = "https://example.com"; // Dominio del servidor web
+    // Opcional: Añadir el envío de trazas a una base de datos de Firebase o similar.
+    // Opcional: Manejar eventos muestreables (solamente escribir cada cierto tiempo)
+    // Opcional: Posibilidad de poder desactivar el seguimiento de determinados tipos de eventos.
+    // HashSet<Event> disabledEvents = new HashSet<Event>();
+    // Opcional: Configuración del sistema de telemetría por datos (fichero de configuración,
+    // configuración desde el editor de Unity...)
+    // public string configFilename;
+    // y cargar el archivo de configuracion por datos en la constructora
 
     public Tracker(string logFilename, Format chosenFormat, PersistenceType persType, long sesID)
     {
+        _instance = this;
+
+        localPath = Application.dataPath + logFilename;
+        format = chosenFormat;
         SESSION_ID = sesID;
 
+        // TODO: Bucle de lectura-escritura del archivo de guardado
+        // que dependiendo del PersistenceType se escribirá/enviará
+        // en local o por servidor
         switch (persType)
         {
             case PersistenceType.LOCAL:
-                CreateLocalLogFile(logFilename);
+                CreateLocalLogFile();
                 break;
             case PersistenceType.NETWORK:
                 InitiateNetworkConnection(logFilename);
@@ -60,57 +83,11 @@ public class Tracker
             default: break;
         }
 
-        // ...
-
-        _instance = this;
+        InitiateLoop();
     }
 
-    /*
-     * Genera un id unico a partir del evento
-     * Utiliza el tiempo actual, una salt
-     */
-    private string GenerateUniqueID(/*Event event*/)
-    {
-        //using (var sha256 = SHA256.Create())
-        //{
-        //    var epoch = new DateTime(1970, 1, 1);
-        //    var millisecondsSinceEpoch = (long)(DateTime.UtcNow - epoch).TotalMilliseconds;
-        //    var rawData = $"{event.sessionId}-{SALT}-{millisecondsSinceEpoch}";
-        //    var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-        //    return BitConverter.ToString(bytes).Replace("-", "").ToLower();
-        //}
-        return "";
-    }
-
-    /*
-     * Crear y abrir el archivo donde volcar
-     * los datos
-     */
-    private void CreateLocalLogFile(string logFilename)
-    {
-        //Si se va a crear aquí el archivo a lo mejor lo suyo es que sea el start?
-        route = Application.dataPath + "/telemetria.txt";
-        Debug.Log("Archivo telemetria: " + route);
-
-        //No hace falta cerrar el archivo porque vamos a escribir con 
-        //File.AppendAllText(route, "json con los datos" + '\n');
-    }
-
-    // Cerrar el FileStream??
-
-    /*
-     * Posibilidad de enviar a un servidor los datos
-     */
-    private void InitiateNetworkConnection(string logFilename)
-    {
-        // Comprobar que se pueda conectar y enviar datos
-        // Si no se puede en esta primera vez, volver a intentarlo
-        // cada X tiempo y mientras tanto guardar los datos en local
-    }
-
-    // Singleton
-    static private Tracker _instance;
-    static public Tracker Instance
+    static private Tracker _instance;   // Acceso privado al singleton
+    static public Tracker Instance      // Acceso publico al singleton
     {
         get
         {
@@ -118,9 +95,64 @@ public class Tracker
         }
     }
 
-    /*
-     *  Metodo que escribe toda la cola y la vacia 
-     */
+    #region Persistencia Local
+    /// <summary>
+    /// Crea y abre el archivo donde volcar los datos
+    /// </summary>
+    private void CreateLocalLogFile()
+    {
+        Debug.Log("Archivo telemetria: " + localPath);
+
+        // Crear FileStream...
+    }
+
+    // Cerrar el FileStream??
+
+    /// <summary>
+    /// Escribe en logFile para el almacenamiento local
+    /// </summary>
+    public void Write()
+    {
+        //Evento e
+        //switch (format)
+        //case JSON:
+        //string json = JsonUtility.ToJson(e)
+        //File.AppendAllText(route, json + '\n');
+        //break;
+        //case CSV:
+        //File.AppendAllText(route, e.ToCSV() + '\n');
+        //break;
+        //...
+    }
+    #endregion
+
+    #region Persistencia por servidor web
+    /// <summary>
+    /// Posibilidad de iniciar una conexion con un servidor para enviar
+    /// las trazas de datos
+    /// </summary>
+    /// <param name="logFilename">Nombre del paquete</param>
+    private void InitiateNetworkConnection(string logFilename)
+    {
+        // Comprobar que se pueda conectar y enviar datos
+        // Si no se puede en esta primera vez, volver a intentarlo
+        // cada X tiempo y mientras tanto guardar los datos en local
+    }
+    #endregion
+
+    #region Gestion de la cola de eventos
+    /// <summary>
+    /// Inicia el hilo de lectura-escritura con bucle usando el ConcurrentQueue
+    /// </summary>
+    private void InitiateLoop()
+    {
+        // TODO: Crear un hilo que contenga un bucle
+
+    }
+
+    /// <summary>
+    /// Escribe toda la cola y la vacia
+    /// </summary>
     public void FlushQueue()
     {
         // Mientras se este vaciando la cola y siga habiendo eventos
@@ -137,9 +169,6 @@ public class Tracker
         // eventQueue.clear();
     }
 
-    // TODO: SendEvent()
-    // TODO: Write()
-
     /// <summary>
     /// Mete un elemento en la cola de eventos.
     /// </summary>
@@ -147,7 +176,7 @@ public class Tracker
     public void AddEvent(Event e)
     {
         eventQueue.Enqueue(e);
-        // Si supera un maximo escribe.
+        // Si supera un maximo escribe
         if (eventQueue.Count >= EVENTS_TO_WRITE_SIZE)
         {
             WriteData();
@@ -155,7 +184,7 @@ public class Tracker
     }
 
     /// <summary>
-    /// Escribe la cola cuando se superen cierto elementos (+ si se mete por tiempo).
+    /// Escribe la cola cuando se superen cierto elementos (+ si se mete por tiempo)
     /// </summary>
     public void WriteData()
     {
@@ -168,30 +197,32 @@ public class Tracker
         }
     }
 
-    /*
-     * Se llama desde el resto de scripts:
-     * almacena el nuevo evento en la cola
-     */
-    public void SendEvent(/*Event event*/)
+    /// <summary>
+    /// Evento que se llama desde el resto de scripts: almacena el nuevo evento en la cola
+    /// </summary>
+    /// <param name="e"></param>
+    public void SendEvent(Event e)
     {
         // Aplicar el sessionId, id, timestamp
     }
+    #endregion
 
-    /*
-     * Escribe el par de [clave,valor]
-     */
-    public void Write(string key/*, ... value*/)
+    #region Utilidades
+    /// <summary>
+    /// Genera un ID unico a partir del evento, utiliza el tiempo actual y una salt
+    /// </summary>
+    /// <param name="e">Evento a partir del cual generar el ID</param>
+    /// <returns></returns>
+    private string GenerateUniqueID(Event e)
     {
-        //Para escribir seguir el siguiente esquema:
-
-        //Evento e
-        //string json = JsonUtility.ToJson(e)
-        //File.AppendAllText(route, json + '\n');
-
-        //Con esto debería escribirse todo en un mismo archivo y cerrarse correctamente
+        using (var sha256 = SHA256.Create())
+        {
+            var epoch = new DateTime(1970, 1, 1);
+            var millisecondsSinceEpoch = (long)(DateTime.UtcNow - epoch).TotalMilliseconds;
+            var rawData = $"{e.GetSessionId()}-{SALT}-{millisecondsSinceEpoch}";
+            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+            return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+        }
     }
-
-    // TODO: Bucle de lectura-escritura del archivo de guardado
-    // que dependiendo del PersistenceType se escribirá/enviará
-    // en local o por servidor
+    #endregion
 }

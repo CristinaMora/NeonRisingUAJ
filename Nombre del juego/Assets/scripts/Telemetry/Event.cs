@@ -5,12 +5,15 @@ using System;
 /// </summary>
 public abstract class Event
 {
-    private long sessionId;   // ID de la sesion en la que se genera el evento
-    private int id;           // ID unico del evento
+    private long sessionId;     // ID de la sesion en la que se genera el evento
+    private int id;             // ID unico del evento
     private DateTime timestamp; // Momento en el que se ha generado el evento 
 
- 
-    // Constructor base que inicializa los datos comunes del evento
+    /// <summary>
+    /// Constructor base que inicializa los datos comunes del evento
+    /// </summary>
+    /// <param name="sessionId"></param>
+    /// <param name="id"></param>
     protected Event(long sessionId, int id)
     {
         this.sessionId = sessionId;
@@ -18,47 +21,68 @@ public abstract class Event
         this.timestamp = DateTime.UtcNow;
     }
 
-    // Obtiene el ID de la sesion
+    /// <summary>
+    /// Obtiene el ID de la sesion
+    /// </summary>
+    /// <returns></returns>
     public long GetSessionId()
     {
         return sessionId;
     }
 
-    // Establece el ID de la sesion
+    /// <summary>
+    /// Establece el ID de la sesion
+    /// </summary>
+    /// <param name="value"></param>
     public void SetSessionId(long value)
     {
         sessionId = value;
     }
-    // Obtiene el ID del evento
-  
+
+    /// <summary>
+    /// Obtiene el ID del evento
+    /// </summary>
+    /// <returns></returns>
     public int GetId()
     {
         return id;
     }
 
-    // Establece el ID del evento
+    /// <summary>
+    /// Establece el ID del evento
+    /// </summary>
+    /// <param name="value"></param>
     public void SetId(int value)
     {
         id = value;
     }
 
-    // Obtiene la marca de tiempo del evento
-    
+    /// <summary>
+    /// Obtiene la marca de tiempo del evento
+    /// </summary>
+    /// <returns></returns>
     public DateTime GetTimestamp()
     {
         return timestamp;
     }
 
-    
-    // Establece la marca de tiempo del evento
-    
+    /// <summary>
+    /// Establece la marca de tiempo del evento
+    /// </summary>
+    /// <param name="value"></param>
     public void SetTimestamp(DateTime value)
     {
         timestamp = value;
     }
-
     
-    // Metodo abstracto que debe ser implementado por cada tipo de event para definir como se guardan sus datos 
-    
+    /// <summary>
+    /// Metodo abstracto que debe ser implementado por cada tipo de event para definir como se guardan sus datos
+    /// </summary>
     public abstract void WriteData();
+
+    /// <summary>
+    /// Metodo abstracto que debe ser implementado por cada tipo de event para definir como se escribe en formato CSV
+    /// </summary>
+    /// <returns>Texto en formato CSV</returns>
+    public abstract string ToCSV();
 }
