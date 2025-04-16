@@ -1,16 +1,14 @@
+using Firebase;
+using Firebase.Database;
+using Firebase.Extensions;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
-using static UnityEditor.PlayerSettings;
 
 // Al diseñarlo hay que tener en cuenta qué vamos a hacer cuando se producen ciertos
 // eventos catastróficos:
@@ -25,20 +23,22 @@ using static UnityEditor.PlayerSettings;
 
 public class Tracker
 {
-    public enum Format { JSON, CSV }; // Formatos disponibles para guardar los eventos
-    public enum PersistenceType { LOCAL, NETWORK };
+    public enum Format { JSON, CSV/*, ... Otros formatos */ }; // Formatos disponibles para guardar los eventos
 
-    private const int EVENTS_TO_WRITE_SIZE = 50;// Numero limite de eventos para escribir
+    // Opcional: Añadir el envío de trazas a una base de datos de Firebase o similar.
+    public enum PersistenceType { LOCAL, DATABASE };
+
+    private int EVENTS_TO_WRITE_SIZE;           // Numero limite de eventos para escribir
     private const string SALT = "UAJ-Grupo1";   // Salt que se usa para generar IDs unicas
-    private long SESSION_ID;                    // ID de la sesion
+    private static string sessionId;            // ID de la sesion
 
     // TODO: Crear eventos genericos
     // TODO: Manejar eventos puntuales donde se guardan en escenas especificas
 
     private string localPath;   // Ruta en donde se guarda el archivo con los datos
                                 // de telemetría (local)
-    private FileStream logFile; // Stream para los datos en local
     Format format;              // Formato de escritura de los eventos
+    PersistenceType persType;   // Tipo de persistencia de los eventos
 
     // TODO: Crear la cola de eventos, importante investigar sobre la concurrencia
     // mientras se está leyendo y eliminando de la cola, también se están añadiendo
@@ -51,40 +51,10 @@ public class Tracker
     private Thread eventThread; // Hilo con bucle que gestiona la cola de eventos
 
     // Opcional: Añadir el envío de trazas a un servidor web.
-    private string DEFAULT_SERVER_DOMAIN = "https://example.com"; // Dominio del servidor web
-    // Opcional: Añadir el envío de trazas a una base de datos de Firebase o similar.
+    //private string DEFAULT_SERVER_DOMAIN = "https://example.com"; // Dominio del servidor web
     // Opcional: Manejar eventos muestreables (solamente escribir cada cierto tiempo)
     // Opcional: Posibilidad de poder desactivar el seguimiento de determinados tipos de eventos.
     // HashSet<Event> disabledEvents = new HashSet<Event>();
-    // Opcional: Configuración del sistema de telemetría por datos (fichero de configuración,
-    // configuración desde el editor de Unity...)
-    // public string configFilename;
-    // y cargar el archivo de configuracion por datos en la constructora
-
-    public Tracker(string logFilename, Format chosenFormat, PersistenceType persType, long sesID)
-    {
-        _instance = this;
-
-        localPath = Application.dataPath + logFilename;
-        format = chosenFormat;
-        SESSION_ID = sesID;
-
-        // TODO: Bucle de lectura-escritura del archivo de guardado
-        // que dependiendo del PersistenceType se escribirá/enviará
-        // en local o por servidor
-        switch (persType)
-        {
-            case PersistenceType.LOCAL:
-                CreateLocalLogFile();
-                break;
-            case PersistenceType.NETWORK:
-                InitiateNetworkConnection(logFilename);
-                break;
-            default: break;
-        }
-
-        InitiateLoop();
-    }
 
     static private Tracker _instance;   // Acceso privado al singleton
     static public Tracker Instance      // Acceso publico al singleton
@@ -95,48 +65,95 @@ public class Tracker
         }
     }
 
+    public Tracker()
+    {
+        _instance = this;
+
+        eventQueue = new ConcurrentQueue<Event>();
+        sessionId = Guid.NewGuid().ToString();
+        format = ConfigManager.GetFormat();
+        persType = ConfigManager.GetPersistenceType();
+        EVENTS_TO_WRITE_SIZE = ConfigManager.GetEventsToWriteSize();
+
+        switch (persType)
+        {
+            case PersistenceType.LOCAL:
+                CreateLocalLogFile();
+                break;
+            case PersistenceType.DATABASE:
+                InitiateDatabaseConnection();
+                break;
+            default: break;
+        }
+
+        // TODO: Bucle de lectura-escritura del archivo de guardado
+        // que dependiendo del PersistenceType se escribirá/enviará
+        // en local o por servidor
+        InitiateLoop();
+    }
+
     #region Persistencia Local
     /// <summary>
     /// Crea y abre el archivo donde volcar los datos
     /// </summary>
     private void CreateLocalLogFile()
     {
-        Debug.Log("Archivo telemetria: " + localPath);
-
-        // Crear FileStream...
-    }
-
-    // Cerrar el FileStream??
-
-    /// <summary>
-    /// Escribe en logFile para el almacenamiento local
-    /// </summary>
-    public void Write()
-    {
-        //Evento e
-        //switch (format)
-        //case JSON:
-        //string json = JsonUtility.ToJson(e)
-        //File.AppendAllText(route, json + '\n');
-        //break;
-        //case CSV:
-        //File.AppendAllText(route, e.ToCSV() + '\n');
-        //break;
-        //...
+        localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename();
+        Debug.Log("Ruta del archivo de telemetria: " + localPath);
     }
     #endregion
 
-    #region Persistencia por servidor web
+    #region Persistencia por servidor con base de datos
     /// <summary>
     /// Posibilidad de iniciar una conexion con un servidor para enviar
-    /// las trazas de datos
+    /// las trazas de datos y guardarlos en una base de datos
     /// </summary>
-    /// <param name="logFilename">Nombre del paquete</param>
-    private void InitiateNetworkConnection(string logFilename)
+    private void InitiateDatabaseConnection()
     {
-        // Comprobar que se pueda conectar y enviar datos
-        // Si no se puede en esta primera vez, volver a intentarlo
-        // cada X tiempo y mientras tanto guardar los datos en local
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.Result == DependencyStatus.Available)
+            {
+                Debug.Log("Firebase available.");
+            }
+            else
+            {
+                Debug.LogError("Firebase not available: " + task.Result);
+            }
+        });
+    }
+
+    /// <summary>
+    /// Envia el evento a Firebase
+    /// </summary>
+    /// <param name="e"></param>
+    private void SendEventToFirebase(Event e)
+    {
+        // Firebase solo permite envio de datos con formato JSON
+        Debug.Log("Sending event to Firebase: " + e.ToJSON());
+
+        DatabaseReference dbRef = FirebaseDatabase.DefaultInstance.RootReference;
+
+        dbRef.Child("events")
+            .Push()
+            .SetRawJsonValueAsync(e.ToJSON())
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    Debug.LogError("Error sending event to Firebase");
+
+                    if (task.Exception != null)
+                    {
+                        foreach (var innerException in task.Exception.InnerExceptions)
+                        {
+                            Debug.LogError("Firebase error: " + innerException.Message);
+                        }
+                    }
+                }
+                else if (task.IsCompleted)
+                    Debug.Log("Event correctly sent");
+            });
     }
     #endregion
 
@@ -151,59 +168,72 @@ public class Tracker
     }
 
     /// <summary>
-    /// Escribe toda la cola y la vacia
-    /// </summary>
-    public void FlushQueue()
-    {
-        // Mientras se este vaciando la cola y siga habiendo eventos
-        // se ejecuta el bucle
-        while (eventQueue.TryDequeue(out Event evt))
-        {
-            // Programacion defensiva por si hay un evento vacio
-            if (evt != null)
-                // Escribimos el evento
-                evt.WriteData();
-        }
-        // --Creo que puede darse el caso de que un elemento de la cola no se haya eliminado, si esto pasa no se como actuar (Consultar al grupo) --
-        // Eliminamos los elementos de la cola
-        // eventQueue.clear();
-    }
-
-    /// <summary>
-    /// Mete un elemento en la cola de eventos.
+    /// Mete un elemento en la cola de eventos y si supera un maximo,
+    /// hace flush dependiendo del tipo de persistencia
     /// </summary>
     /// <param name="e">Evento a meter a la cola.</param> 
-    public void AddEvent(Event e)
+    public void SendEvent(Event e)
     {
         eventQueue.Enqueue(e);
+
         // Si supera un maximo escribe
         if (eventQueue.Count >= EVENTS_TO_WRITE_SIZE)
         {
-            WriteData();
+            switch (persType)
+            {
+                case PersistenceType.LOCAL:
+                    FlushQueueToFile();
+                    break;
+                case PersistenceType.DATABASE:
+                    FlushQueueToFirebase();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     /// <summary>
-    /// Escribe la cola cuando se superen cierto elementos (+ si se mete por tiempo)
+    /// Saca de la cola cuando se superen cierto elementos y escribe en el archivo en el formato
+    /// (+ si se mete por tiempo)
     /// </summary>
-    public void WriteData()
+    public void FlushQueueToFile()
     {
         int i = 0;
         while (eventQueue.TryDequeue(out Event e) && i < EVENTS_TO_WRITE_SIZE)
         {
             if (e != null)
-                e.WriteData();
+            {
+                string data;
+                switch (format)
+                {
+                    case Format.JSON:
+                        data = e.ToJSON();
+                        break;
+                    case Format.CSV:
+                        data = e.ToCSV();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(format), format, null);
+                }
+                File.AppendAllText(localPath, data + "\n");
+            }
             i++;
         }
     }
 
     /// <summary>
-    /// Evento que se llama desde el resto de scripts: almacena el nuevo evento en la cola
+    /// Saca de la cola de eventos y los envia a la base de datos de Firebase
     /// </summary>
-    /// <param name="e"></param>
-    public void SendEvent(Event e)
+    private void FlushQueueToFirebase()
     {
-        // Aplicar el sessionId, id, timestamp
+        int i = 0;
+        while (eventQueue.TryDequeue(out Event e) && i < EVENTS_TO_WRITE_SIZE)
+        {
+            if (e != null)
+                SendEventToFirebase(e);
+            i++;
+        }
     }
     #endregion
 
@@ -213,7 +243,7 @@ public class Tracker
     /// </summary>
     /// <param name="e">Evento a partir del cual generar el ID</param>
     /// <returns></returns>
-    private string GenerateUniqueID(Event e)
+    private static string GenerateUniqueID(Event e)
     {
         using (var sha256 = SHA256.Create())
         {
@@ -225,4 +255,9 @@ public class Tracker
         }
     }
     #endregion
+
+    public string GetSessionId()
+    {
+        return sessionId;
+    }
 }

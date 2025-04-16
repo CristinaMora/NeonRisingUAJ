@@ -1,67 +1,64 @@
 using System;
+using UnityEngine;
 
 /// <summary>
 /// Clase base abstracta que representa un evento dentro de nuestro sistema de telemetria.
 /// </summary>
+[Serializable]
 public abstract class Event
 {
-    private long sessionId;     // ID de la sesion en la que se genera el evento
-    private int id;             // ID unico del evento
-    private DateTime timestamp; // Momento en el que se ha generado el evento 
+    public string sessionId;            // ID de la sesion en la que se genera el evento
+    public string gameId;               // ID unico del evento
+    public string eventType;            // Tipo de evento
+    public long timestamp;              // Momento en el que se ha generado el evento
+    public string authKey;              // Clave de autenticacion para el envio del evento
 
     /// <summary>
     /// Constructor base que inicializa los datos comunes del evento
     /// </summary>
-    /// <param name="sessionId"></param>
-    /// <param name="id"></param>
-    protected Event(long sessionId, int id)
+    /// <param name="gameId">Identificador de la partida</param>
+    /// <param name="eventType">Tipo de evento</param>
+    protected Event(string gameId, string eventType)
     {
-        this.sessionId = sessionId;
-        this.id = id;
-        this.timestamp = DateTime.UtcNow;
+        this.sessionId = Tracker.Instance.GetSessionId();
+        this.gameId = gameId;
+        this.eventType = eventType;
+        this.timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        this.authKey = ConfigManager.GetAuthKey();
     }
 
     /// <summary>
     /// Obtiene el ID de la sesion
     /// </summary>
     /// <returns></returns>
-    public long GetSessionId()
+    public string GetSessionId()
     {
         return sessionId;
     }
 
     /// <summary>
-    /// Establece el ID de la sesion
-    /// </summary>
-    /// <param name="value"></param>
-    public void SetSessionId(long value)
-    {
-        sessionId = value;
-    }
-
-    /// <summary>
-    /// Obtiene el ID del evento
+    /// Obtiene el ID de la partida
     /// </summary>
     /// <returns></returns>
-    public int GetId()
+    public string GetGameId()
     {
-        return id;
+        return gameId;
     }
 
     /// <summary>
-    /// Establece el ID del evento
+    /// Establece el ID de la partida
     /// </summary>
     /// <param name="value"></param>
-    public void SetId(int value)
+    public void SetGameId(string value)
     {
-        id = value;
+        gameId = value;
     }
 
     /// <summary>
     /// Obtiene la marca de tiempo del evento
     /// </summary>
     /// <returns></returns>
-    public DateTime GetTimestamp()
+    public long GetTimestamp()
     {
         return timestamp;
     }
@@ -70,19 +67,28 @@ public abstract class Event
     /// Establece la marca de tiempo del evento
     /// </summary>
     /// <param name="value"></param>
-    public void SetTimestamp(DateTime value)
+    public void SetTimestamp(long value)
     {
         timestamp = value;
     }
-    
-    /// <summary>
-    /// Metodo abstracto que debe ser implementado por cada tipo de event para definir como se guardan sus datos
-    /// </summary>
-    public abstract void WriteData();
 
     /// <summary>
-    /// Metodo abstracto que debe ser implementado por cada tipo de event para definir como se escribe en formato CSV
+    /// Devuelve el evento en formato JSON 
+    /// </summary>
+    /// <returns>Texto en formato JSON</returns>
+    public string ToJSON()
+    {
+        return JsonUtility.ToJson(this);
+    }
+
+    /// <summary>
+    /// Debe ser overrideado en eventos que hereden para definir como se escribe en formato CSV
     /// </summary>
     /// <returns>Texto en formato CSV</returns>
-    public abstract string ToCSV();
+    public virtual string ToCSV()
+    {
+        return $"{sessionId},{gameId},{eventType},{timestamp}";
+    }
+
+    // Otros formatos...
 }
