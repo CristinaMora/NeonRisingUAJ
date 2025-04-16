@@ -49,7 +49,7 @@ public class Tracker
     // Opcional: Serializaci�n y persistencia en una hebra independiente de la del videojuego.
     private ConcurrentQueue<Event> eventQueue;
     private Thread eventThread; // Hilo con bucle que gestiona la cola de eventos
-    private bool runningThread = false; // False para dejar de ejecutar el hilo (Al cerrar el juego)
+    private bool runningThread = true; // False para dejar de ejecutar el hilo (Al cerrar el juego)
     private bool flushQueue = false; // Booleano para que flushee la cola solo cuando queremos
     private AutoResetEvent writeSignal = new AutoResetEvent(false); // Senial mandada cuando queremos que se escriba un evento (por tiempo o flush)
 
@@ -169,10 +169,20 @@ public class Tracker
         // TODO: Crear un hilo que contenga un bucle
         runningThread = true;
         // Creamos el hilo y definimos el metodo con el bucle
-        eventThread = new Thread(() =>
+        eventThread = new Thread(eventThreadLoop);
+        // Inicia la ejecucion del hilo
+        eventThread.Start();
+    }
+    /// <summary>
+    /// Bucle del hilo lectura-escritura
+    /// </summary>
+    private void eventThreadLoop()
+    {
+        try
         {
             while (runningThread)
             {
+                Debug.Log("Estado del hilo: " + eventThread.ThreadState);
                 writeSignal.WaitOne(); // Espera que se le indique que guarde
 
 
@@ -188,13 +198,12 @@ public class Tracker
                         break;
                 }
             }
-        });
-
-        // Inicia la ejecucion del hilo
-        eventThread.Start();
-
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("EXCEPCION en el hilo: " + e.Message);
+        }
     }
-
     /// <summary>
     /// Metodo que activa el mecanismo para volcar la cola entera en el JSON
     /// </summary>
@@ -231,11 +240,14 @@ public class Tracker
     public void FlushQueueToFile()
     {
         int i = 0;
+
         while (eventQueue.TryDequeue(out Event e) && (i < EVENTS_TO_WRITE_SIZE || flushQueue))
         {
+            Debug.Log(i);
             if (e != null)
             {
                 string data;
+                Debug.Log("VOLCADO 1");
                 switch (format)
                 {
                     case Format.JSON:
@@ -272,7 +284,7 @@ public class Tracker
         // En caso de que este vaciando la cola entera, resetea la variable de control
         if (flushQueue) flushQueue = false;
     }
-        
+
     #endregion
 
     #region Utilidades
@@ -305,7 +317,7 @@ public class Tracker
     public void DestroyTracker()
     {
         // Para el bucle del hilo
-        runningThread = false;
+        //runningThread = false;
 
         // Vuelca lo que queda de la cola en JSON
         FlushQueue();
