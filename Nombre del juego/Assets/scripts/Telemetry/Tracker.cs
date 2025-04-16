@@ -10,22 +10,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-// Al diseñarlo hay que tener en cuenta qué vamos a hacer cuando se producen ciertos
-// eventos catastróficos:
-// • Nos hemos quedado sin espacio.
-// • No tenemos red. -> guardar en local hasta que haya red
-// • No tenemos permisos para almacenar los eventos.
-// • Consumo de batería y datos (móviles).
-// • El usuario reinstala la aplicación (dejamos de tener info del usuario concreto, si
+// Al diseï¿½arlo hay que tener en cuenta quï¿½ vamos a hacer cuando se producen ciertos
+// eventos catastrï¿½ficos:
+// ï¿½ Nos hemos quedado sin espacio.
+// ï¿½ No tenemos red. -> guardar en local hasta que haya red
+// ï¿½ No tenemos permisos para almacenar los eventos.
+// ï¿½ Consumo de baterï¿½a y datos (mï¿½viles).
+// ï¿½ El usuario reinstala la aplicaciï¿½n (dejamos de tener info del usuario concreto, si
 // fuese necesario).
-// • El usuario modifica los datos enviados (poco probable en métricas).
-// • Privacidad en distintas regiones/países.
+// ï¿½ El usuario modifica los datos enviados (poco probable en mï¿½tricas).
+// ï¿½ Privacidad en distintas regiones/paï¿½ses.
 
 public class Tracker
 {
     public enum Format { JSON, CSV/*, ... Otros formatos */ }; // Formatos disponibles para guardar los eventos
 
-    // Opcional: Añadir el envío de trazas a una base de datos de Firebase o similar.
+    // Opcional: Aï¿½adir el envï¿½o de trazas a una base de datos de Firebase o similar.
     public enum PersistenceType { LOCAL, DATABASE };
 
     private int EVENTS_TO_WRITE_SIZE;           // Numero limite de eventos para escribir
@@ -36,21 +36,24 @@ public class Tracker
     // TODO: Manejar eventos puntuales donde se guardan en escenas especificas
 
     private string localPath;   // Ruta en donde se guarda el archivo con los datos
-                                // de telemetría (local)
+                                // de telemetrï¿½a (local)
     Format format;              // Formato de escritura de los eventos
     PersistenceType persType;   // Tipo de persistencia de los eventos
 
     // TODO: Crear la cola de eventos, importante investigar sobre la concurrencia
-    // mientras se está leyendo y eliminando de la cola, también se están añadiendo
+    // mientras se estï¿½ leyendo y eliminando de la cola, tambiï¿½n se estï¿½n aï¿½adiendo
     // eventos...
     // ConcurrentQueue es thread-safe lo que indica que si creamos un hilo aparte
     // gestiona las concurrencias que pueda haber
     // https://learn.microsoft.com/en-us/dotnet/api/system.collections.concurrent.concurrentqueue-1?view=net-9.0
-    // Opcional: Serialización y persistencia en una hebra independiente de la del videojuego.
+    // Opcional: Serializaciï¿½n y persistencia en una hebra independiente de la del videojuego.
     private ConcurrentQueue<Event> eventQueue;
     private Thread eventThread; // Hilo con bucle que gestiona la cola de eventos
+    private bool runningThread = false; // False para dejar de ejecutar el hilo (Al cerrar el juego)
+    private bool flushQueue = false; // Booleano para que flushee la cola solo cuando queremos
+    private AutoResetEvent writeSignal = new AutoResetEvent(false); // Senial mandada cuando queremos que se escriba un evento (por tiempo o flush)
 
-    // Opcional: Añadir el envío de trazas a un servidor web.
+    // Opcional: Aï¿½adir el envï¿½o de trazas a un servidor web.
     //private string DEFAULT_SERVER_DOMAIN = "https://example.com"; // Dominio del servidor web
     // Opcional: Manejar eventos muestreables (solamente escribir cada cierto tiempo)
     // Opcional: Posibilidad de poder desactivar el seguimiento de determinados tipos de eventos.
@@ -87,7 +90,7 @@ public class Tracker
         }
 
         // TODO: Bucle de lectura-escritura del archivo de guardado
-        // que dependiendo del PersistenceType se escribirá/enviará
+        // que dependiendo del PersistenceType se escribirï¿½/enviarï¿½
         // en local o por servidor
         InitiateLoop();
     }
@@ -164,8 +167,45 @@ public class Tracker
     private void InitiateLoop()
     {
         // TODO: Crear un hilo que contenga un bucle
+        runningThread = true;
+        // Creamos el hilo y definimos el metodo con el bucle
+        eventThread = new Thread(() =>
+        {
+            while (runningThread)
+            {
+                writeSignal.WaitOne(); // Espera que se le indique que guarde
+
+
+                switch (persType)
+                {
+                    case PersistenceType.LOCAL:
+                        FlushQueueToFile();
+                        break;
+                    case PersistenceType.DATABASE:
+                        FlushQueueToFirebase();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        // Inicia la ejecucion del hilo
+        eventThread.Start();
 
     }
+
+    /// <summary>
+    /// Metodo que activa el mecanismo para volcar la cola entera en el JSON
+    /// </summary>
+    public void FlushQueue()
+    {
+        // Booleano para indicar que queremos volcar la cola
+        flushQueue = true;
+        // Despertamos el hilo
+        writeSignal.Set();
+    }
+
 
     /// <summary>
     /// Mete un elemento en la cola de eventos y si supera un maximo,
@@ -179,17 +219,8 @@ public class Tracker
         // Si supera un maximo escribe
         if (eventQueue.Count >= EVENTS_TO_WRITE_SIZE)
         {
-            switch (persType)
-            {
-                case PersistenceType.LOCAL:
-                    FlushQueueToFile();
-                    break;
-                case PersistenceType.DATABASE:
-                    FlushQueueToFirebase();
-                    break;
-                default:
-                    break;
-            }
+            // Despertamos el hilo
+            writeSignal.Set();
         }
     }
 
@@ -200,7 +231,7 @@ public class Tracker
     public void FlushQueueToFile()
     {
         int i = 0;
-        while (eventQueue.TryDequeue(out Event e) && i < EVENTS_TO_WRITE_SIZE)
+        while (eventQueue.TryDequeue(out Event e) && (i < EVENTS_TO_WRITE_SIZE || flushQueue))
         {
             if (e != null)
             {
@@ -220,6 +251,9 @@ public class Tracker
             }
             i++;
         }
+
+        // En caso de que este vaciando la cola entera, resetea la variable de control
+        if (flushQueue) flushQueue = false;
     }
 
     /// <summary>
@@ -228,13 +262,17 @@ public class Tracker
     private void FlushQueueToFirebase()
     {
         int i = 0;
-        while (eventQueue.TryDequeue(out Event e) && i < EVENTS_TO_WRITE_SIZE)
+        while (eventQueue.TryDequeue(out Event e) && (i < EVENTS_TO_WRITE_SIZE || flushQueue))
         {
             if (e != null)
                 SendEventToFirebase(e);
             i++;
         }
+
+        // En caso de que este vaciando la cola entera, resetea la variable de control
+        if (flushQueue) flushQueue = false;
     }
+        
     #endregion
 
     #region Utilidades
@@ -259,5 +297,24 @@ public class Tracker
     public string GetSessionId()
     {
         return sessionId;
+    }
+
+    /// <summary>
+    /// Metodo para cerrar los archivos y acabar con el bucle del hilo
+    /// </summary>
+    public void DestroyTracker()
+    {
+        // Para el bucle del hilo
+        runningThread = false;
+
+        // Vuelca lo que queda de la cola en JSON
+        FlushQueue();
+
+        // Inicia la ultima iteracion del bucle del hilo
+        writeSignal.Set();
+
+        // Si el hilo sigue activo
+        if (runningThread && eventThread.IsAlive)  // Espera a que el hilo termine para continuar (Para que no haya problemas al cerrar el juego)
+            eventThread.Join(); // Este metodo puede provocar la congelacion del hilo principal, pero como lo vamos a usar al cerrar el juego no deberia dar problemas (Consultar con el grupo)
     }
 }
