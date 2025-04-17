@@ -15,7 +15,7 @@ public class ConfigEditor : MonoBehaviour
     private Tracker.Format format;
     private Tracker.PersistenceType persistenceType;
     private int EVENTS_TO_WRITE_SIZE;
-    string eventsToWriteSizeInput;
+    private string eventsToWriteSizeInput;
 
     private Dictionary<GameObject, bool> initialActiveStates = new Dictionary<GameObject, bool>();
 
@@ -106,7 +106,7 @@ public class ConfigEditor : MonoBehaviour
         }
 
         GUILayout.Label("Persistence Type:");
-        persistenceType = (Tracker.PersistenceType)GUILayout.SelectionGrid((int)persistenceType, new string[] { "LOCAL", "NETWORK" }, 2);
+        persistenceType = (Tracker.PersistenceType)GUILayout.SelectionGrid((int)persistenceType, new string[] { "LOCAL", "DATABASE", "WEBSERVER" }, 3);
         if (GUILayout.Button("Save Persistence Type"))
         {
             ConfigManager.SetPersistenceType(persistenceType);

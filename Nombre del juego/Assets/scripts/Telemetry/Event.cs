@@ -20,11 +20,11 @@ public abstract class Event
     /// <param name="eventType">Tipo de evento</param>
     protected Event(string gameId, string eventType)
     {
-        this.sessionId = Tracker.Instance.GetSessionId();
+        sessionId = Tracker.Instance.SessionId;
         this.gameId = gameId;
         this.eventType = eventType;
-        this.timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        this.authKey = ConfigManager.GetAuthKey();
+        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        authKey = ConfigManager.GetAuthKey();
     }
 
     /// <summary>

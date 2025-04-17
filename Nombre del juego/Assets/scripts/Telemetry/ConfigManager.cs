@@ -12,6 +12,19 @@ public static class ConfigManager
     private static ConfigData config;
     private static string route;
 
+    public static string GetWebhookURL()
+    {
+        string path = Path.Combine(Application.streamingAssetsPath, "webhook-url.txt");
+
+        if (File.Exists(path))
+            return File.ReadAllText(path).Trim();
+        else
+        {
+            Debug.LogError("Couldn't find webhook-url.txt");
+            return "";
+        }
+    }
+
     public static string GetAuthKey()
     {
         return config?.authKey;

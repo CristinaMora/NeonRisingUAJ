@@ -1,4 +1,4 @@
-En la carpeta Assets > StreamingAssets, añadir los archivos google-services.json y google-services-desktop.json de la carpeta de Drive.
+En la carpeta Assets > StreamingAssets, añadir los archivos google-services.json, google-services-desktop.json y webhook-url.txt de la carpeta de Drive.
 
 Importar los siguientes unitypackages:
 FirebaseAnalytics.unitypackage
