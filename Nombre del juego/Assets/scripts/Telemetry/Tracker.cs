@@ -5,12 +5,11 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using UnityEngine;
 
-// Al disenarlo hay que tener en cuenta qu� vamos a hacer cuando se producen ciertos
+// Al disenarlo hay que tener en cuenta que vamos a hacer cuando se producen ciertos
 // eventos catastroficos:
 // � Nos hemos quedado sin espacio.
 // � No tenemos red. -> guardar en local hasta que haya red
@@ -21,7 +20,6 @@ using UnityEngine;
 // � El usuario modifica los datos enviados (poco probable en metricas).
 // � Privacidad en distintas regiones/paises.
 
-// TODO: Usar GenerateUniqueID para generar el ID para las diferentes partidas
 // TODO: Crear eventos genericos
 // TODO: Manejar eventos puntuales donde se guardan en escenas especificas
 
@@ -34,7 +32,6 @@ public class Tracker
                                                                 // a un servidor web (Google Sheets)
 
     private int EVENTS_TO_WRITE_SIZE;           // Numero limite de eventos para escribir
-    private const string SALT = "UAJ-Grupo1";   // Salt que se usa para generar IDs unicas
     private static string sessionId;            // ID de la sesion
     public string SessionId { get { return sessionId; } } // ID de la sesion (para acceder desde fuera de la clase)
 
@@ -334,24 +331,6 @@ public class Tracker
     }
     #endregion
 
-    #region Utilidades
-    /// <summary>
-    /// Genera un ID unico a partir del evento, utiliza el tiempo actual y una salt
-    /// </summary>
-    /// <param name="e">Evento a partir del cual generar el ID</param>
-    /// <returns></returns>
-    private static string GenerateUniqueID(Event e)
-    {
-        using (var sha256 = SHA256.Create())
-        {
-            var epoch = new DateTime(1970, 1, 1);
-            var millisecondsSinceEpoch = (long)(DateTime.UtcNow - epoch).TotalMilliseconds;
-            var rawData = $"{e.GetSessionId()}-{SALT}-{millisecondsSinceEpoch}";
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-            return BitConverter.ToString(bytes).Replace("-", "").ToLower();
-        }
-    }
-    #endregion
 
     /// <summary>
     /// Metodo para cerrar los archivos y acabar con el bucle del hilo

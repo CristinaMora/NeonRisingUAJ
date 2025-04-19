@@ -2212,6 +2212,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: fondo
       objectReference: {fileID: 0}
+    - target: {fileID: 1293686159781820896, guid: 918ed8a8c822af941bce491b9385e792, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1560422958556843869, guid: 918ed8a8c822af941bce491b9385e792, type: 3}
       propertyPath: m_RootOrder
       value: 3
