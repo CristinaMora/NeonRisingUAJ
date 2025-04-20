@@ -65,6 +65,7 @@ public class Tracker
         }
     }
 
+    
     public Tracker()
     {
         _instance = this;
@@ -88,7 +89,9 @@ public class Tracker
         }
 
         InitiateLoop();
+
     }
+
 
     #region Persistencia Local
     /// <summary>
@@ -215,7 +218,6 @@ public class Tracker
             {
                 Debug.Log("Estado del hilo: " + eventThread.ThreadState);
                 writeSignal.WaitOne(); // Espera que se le indique que guarde
-
 
                 switch (persType)
                 {

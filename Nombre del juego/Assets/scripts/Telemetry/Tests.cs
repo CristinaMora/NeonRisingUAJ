@@ -4,8 +4,14 @@ public class Tests : MonoBehaviour
 {
     private string gameId = "gameId"; // Cambiar por el ID la partida
 
+    private void Awake()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
+
     void Update()
     {
+        
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Debug.Log("Space was pressed.");
