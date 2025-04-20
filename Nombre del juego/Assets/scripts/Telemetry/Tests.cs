@@ -23,4 +23,9 @@ public class Tests : MonoBehaviour
             Tracker.Instance.SendEvent(arrowEvent);
         }
     }
+    private void OnDestroy()
+    {
+        // Metodo que vacia la cola del tracker
+        Tracker.Instance.DestroyTracker();
+    }
 }
