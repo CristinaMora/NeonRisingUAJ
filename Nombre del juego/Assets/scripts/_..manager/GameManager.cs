@@ -49,6 +49,10 @@ public class GameManager : MonoBehaviour
         {
             _instance = this;
 
+            Debug.Log("Inicio de sesion");
+            SessionStartEvent sessionStartEvent = new SessionStartEvent(Tracker.Instance.SessionId);
+            Tracker.Instance.SendEvent(sessionStartEvent);
+
         }
         else
         {
@@ -63,6 +67,11 @@ public class GameManager : MonoBehaviour
     {
         _arcade = false;
         //Al darle al botón carga la escena principal
+
+        Debug.Log("Juego Principal");
+        GameStartEvent gameStartEvent = new GameStartEvent(Tracker.Instance.SessionId);
+        Tracker.Instance.SendEvent(gameStartEvent);
+
         SceneManager.LoadScene("SampleScene");
         AudioManager.Instance.Stop("Menu");
         AudioManager.Instance.Play("Main");
@@ -99,7 +108,9 @@ public class GameManager : MonoBehaviour
     }
     public void QuitGame()
     {
-        
+        Debug.Log("Fin de la sesion");
+        SessionEndEvent sessionEndEvent = new SessionEndEvent(Tracker.Instance.SessionId);
+        Tracker.Instance.SendEvent(sessionEndEvent);
         Application.Quit();
     }
 
@@ -111,6 +122,8 @@ public class GameManager : MonoBehaviour
     }
     public void PlayerDies()
     {
+        Debug.Log("Jugador muere");
+        //PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(Tracker.Instance.SessionId, _player.transform.position, );
         Player_Life_Component.instance.isAlive = false;
         _bow.SetActive(false);
         OnPlayerDefeat();

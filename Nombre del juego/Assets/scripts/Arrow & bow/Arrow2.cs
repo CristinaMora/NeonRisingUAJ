@@ -16,6 +16,7 @@ public class Arrow2 : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         AudioManager.Instance.Play("Disparo");
+        ArrowShotEvent arrowShotEvent;
         if (collision.gameObject.GetComponent<CameraFollow>()==false)
         {
             Destroy(this.gameObject);//se elimina la bala al chocar con lo que sea
@@ -23,11 +24,26 @@ public class Arrow2 : MonoBehaviour
             {
                 //Debug.Log("entramos en el trigger");
                 GameManager.Instance.EnemyDamage(Damage, collision.gameObject);
+
+                Debug.Log("Shoot acertado");
+                arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Damage,
+                    transform.position, true);
+            }
+            else
+            {
+                Debug.Log("Shoot fallado");
+                arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Damage,
+                    transform.position, false);
             }
         }
+        else
+        {
+            Debug.Log("Shoot fallado");
+            arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Damage,
+                transform.position, false);
+        }
       
-
-
+        Tracker.Instance.SendEvent(arrowShotEvent);
     }
     void Update()
     {

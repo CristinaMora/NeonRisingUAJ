@@ -20,13 +20,26 @@ public class Arrow : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        ArrowShotEvent arrowShotEvent;
         if (collision.gameObject.GetComponent<CameraFollow>() == false)
         {
+            Debug.Log("Arrow Certera");
+            arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Teleport,
+                transform.position, true);
+
             AudioManager.Instance.Play("Teletransporte");
             PlayerMovement.pInstance.pTransform.position = transform.position + new Vector3(0, pOffset, 0);
             PlayerMovement.pInstance._myRigidBody.velocity = new Vector2(0, 0);
             Destroy(gameObject);
         }
+        else
+        {
+            Debug.Log("Arrow Fallida");
+            arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Teleport,
+                transform.position, false);
+        }
+
+        Tracker.Instance.SendEvent(arrowShotEvent);
        
     }
         
