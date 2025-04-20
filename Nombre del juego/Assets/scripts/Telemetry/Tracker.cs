@@ -283,7 +283,6 @@ public class Tracker
             if (e != null)
             {
                 string data;
-                Debug.Log("VOLCADO 1");
                 switch (format)
                 {
                     case Format.JSON:
@@ -339,17 +338,18 @@ public class Tracker
     /// </summary>
     public void DestroyTracker()
     {
-        // Para el bucle del hilo
-        //runningThread = false;
-
         // Vuelca lo que queda de la cola en JSON
         FlushQueue();
+
+        // Para el bucle del hilo
+        runningThread = false;
 
         // Inicia la ultima iteracion del bucle del hilo
         writeSignal.Set();
 
+
         // Si el hilo sigue activo
-        if (runningThread && eventThread.IsAlive)  // Espera a que el hilo termine para continuar (Para que no haya problemas al cerrar el juego)
+        if (eventThread.IsAlive)  // Espera a que el hilo termine para continuar (Para que no haya problemas al cerrar el juego)
             eventThread.Join(); // Este metodo puede provocar la congelacion del hilo principal, pero como lo vamos a usar al cerrar el juego no deberia dar problemas (Consultar con el grupo)
     }
 }
