@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -111,10 +112,17 @@ public class GameManager : MonoBehaviour
         Debug.Log("Fin de la sesion");
         SessionEndEvent sessionEndEvent = new SessionEndEvent(Tracker.Instance.SessionId);
         Tracker.Instance.SendEvent(sessionEndEvent);
-        Application.Quit();
-    }
 
-    void Start()
+#if UNITY_EDITOR
+		
+		EditorApplication.isPlaying = false;
+#else
+        
+        Application.Quit();
+#endif
+	}
+
+	void Start()
     {
         Time.timeScale = 0.0f;
         AudioManager.Instance.Play("Menu");
@@ -138,7 +146,6 @@ public class GameManager : MonoBehaviour
     public void EnemyDamage(int Damage, GameObject enemy)
     {
         enemy.GetComponent<Enemy_Life_Component>().Damage(Damage);
-
     }
     public void pause()
     {
