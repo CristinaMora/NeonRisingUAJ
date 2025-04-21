@@ -8,7 +8,8 @@ public class ConfigEditor : MonoBehaviour
 	[Tooltip("Clave de autenticación para el sistema de telemetría.")]
 	[SerializeField] private string authKey;
 
-	[Tooltip("Nombre del archivo donde se almacenarán los logs de eventos.")]
+	[Tooltip("Nombre del archivo donde se almacenarán los logs de eventos.\n" +
+		"No es necesario especificar la extensión del archivo.")]
 	[SerializeField] private string logFilename;
 
 	[Tooltip("Formato en el que se guardarán los datos de telemetría (actualmente JSON o CSV).")]

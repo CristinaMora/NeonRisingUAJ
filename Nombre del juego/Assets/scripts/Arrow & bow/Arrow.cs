@@ -7,6 +7,7 @@ public class Arrow : MonoBehaviour
     public int multiplier = 1;
     private Rigidbody2D rb;
     private float _lifeTime=0;
+    private bool _alreadyHit = false;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -23,11 +24,16 @@ public class Arrow : MonoBehaviour
         ArrowShotEvent arrowShotEvent;
         if (collision.gameObject.GetComponent<CameraFollow>() == false)
         {
-            Debug.Log("Arrow Certera");
-            arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Teleport,
-                transform.position, true);
+            if (!_alreadyHit) 
+            {
+                _alreadyHit = true;
+				Debug.Log("Arrow Certera");
+				arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Teleport,
+					transform.position, true);
+				Tracker.Instance.SendEvent(arrowShotEvent);
+			}
 
-            AudioManager.Instance.Play("Teletransporte");
+			AudioManager.Instance.Play("Teletransporte");
             PlayerMovement.pInstance.pTransform.position = transform.position + new Vector3(0, pOffset, 0);
             PlayerMovement.pInstance._myRigidBody.velocity = new Vector2(0, 0);
             Destroy(gameObject);
@@ -37,9 +43,10 @@ public class Arrow : MonoBehaviour
             Debug.Log("Arrow Fallida");
             arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Teleport,
                 transform.position, false);
-        }
+			Tracker.Instance.SendEvent(arrowShotEvent);
+		}
 
-        Tracker.Instance.SendEvent(arrowShotEvent);
+     
        
     }
         

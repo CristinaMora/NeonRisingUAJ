@@ -100,6 +100,41 @@ public class Tracker
     private void CreateLocalLogFile()
     {
         localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename();
+        switch (format)
+        {
+            case Format.CSV:
+				localPath += ".csv";
+				break;
+            case Format.JSON:
+				localPath += ".json";
+                if (!File.Exists(localPath))
+                {
+                    // No existe: lo creamos y escribimos [
+                    File.WriteAllText(localPath, "[\n");
+                }
+                else
+                {
+                    string content = File.ReadAllText(localPath).TrimEnd();
+
+                    if (string.IsNullOrWhiteSpace(content))
+                    {
+                        // Existe pero está vacío
+                        File.WriteAllText(localPath, "[\n");
+                    }
+                    else
+                    {
+                        int lastBracketIndex = content.LastIndexOf(']');
+                        if (lastBracketIndex != -1)
+                        {
+                            // Quitamos el cierre y agregamos una coma para continuar escribiendo
+                            content = content.Substring(0, lastBracketIndex).TrimEnd();
+                            File.WriteAllText(localPath, content + "\n");
+                        }
+                    }
+                }
+                break;
+            default : break;
+        }
         Debug.Log("Path to telemetry log file: " + localPath);
     }
     #endregion
@@ -274,39 +309,63 @@ public class Tracker
     /// (+ si se mete por tiempo)
     /// </summary>
     public void FlushQueueToFile()
-    {
+{
         int i = 0;
+		bool isFirst = IsFirstJsonEntry();
+
+		StringBuilder batch = new StringBuilder();
 
         while (eventQueue.TryDequeue(out Event e) && (i < EVENTS_TO_WRITE_SIZE || flushQueue))
         {
-            Debug.Log(i);
             if (e != null)
             {
-                string data;
-                switch (format)
+			    string data;
+			    switch (format)
+			    {
+				    case Format.JSON:
+					    data = e.ToJSON();
+					    break;
+				    case Format.CSV:
+					    data = e.ToCSV();
+					    break;
+				    default:
+					    throw new ArgumentOutOfRangeException(nameof(format), format, null);
+			    }
+
+			    if (format == Format.JSON)
                 {
-                    case Format.JSON:
-                        data = e.ToJSON();
-                        break;
-                    case Format.CSV:
-                        data = e.ToCSV();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(format), format, null);
+                    if (!isFirst)
+                        batch.Append(",\n");
+                    batch.Append(data);
+                    isFirst = false;
                 }
-                File.AppendAllText(localPath, data + "\n");
+                else
+                {
+                    batch.AppendLine(data);
+                }
             }
             i++;
         }
 
-        // En caso de que este vaciando la cola entera, resetea la variable de control
+        if (batch.Length > 0)
+            File.AppendAllText(localPath, batch.ToString());
+
         if (flushQueue) flushQueue = false;
     }
+	private bool IsFirstJsonEntry()
+	{
+		if (!File.Exists(localPath)) return true;
 
-    /// <summary>
-    /// Saca de la cola de eventos y los envia a la base de datos de Firebase
-    /// </summary>
-    private void FlushQueueToFirebase()
+		string content = File.ReadAllText(localPath).Trim();
+
+		
+		return content == "[" || content == "[\n";
+	}
+
+	/// <summary>
+	/// Saca de la cola de eventos y los envia a la base de datos de Firebase
+	/// </summary>
+	private void FlushQueueToFirebase()
     {
         int i = 0;
         while (eventQueue.TryDequeue(out Event e) && (i < EVENTS_TO_WRITE_SIZE || flushQueue))
@@ -351,5 +410,11 @@ public class Tracker
         // Si el hilo sigue activo
         if (eventThread.IsAlive)  // Espera a que el hilo termine para continuar (Para que no haya problemas al cerrar el juego)
             eventThread.Join(); // Este metodo puede provocar la congelacion del hilo principal, pero como lo vamos a usar al cerrar el juego no deberia dar problemas (Consultar con el grupo)
-    }
+
+		// Escribe "]" si es JSON
+		if (format == Format.JSON)
+		{
+			File.AppendAllText(localPath, "]");
+		}
+	}
 }
