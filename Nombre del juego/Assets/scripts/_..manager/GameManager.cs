@@ -122,8 +122,10 @@ public class GameManager : MonoBehaviour
     }
     public void PlayerDies()
     {
-        Debug.Log("Jugador muere");
-        //PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(Tracker.Instance.SessionId, _player.transform.position, );
+        Debug.Log("Fin partida");
+        GameEndEvent gameEndEvent = new GameEndEvent(Tracker.Instance.SessionId);
+        Tracker.Instance.SendEvent(gameEndEvent);
+
         Player_Life_Component.instance.isAlive = false;
         _bow.SetActive(false);
         OnPlayerDefeat();
