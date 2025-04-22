@@ -87,6 +87,6 @@ class GameDefinition(Definition):
             self.timeGameStart = event['timestamp']
         elif event['eventType'] == "GameEnd": # Evento de fin de partida.
             self.timeGameEnd = event['timestamp']
-            self.gameLenght = self.timeGameStart - self.timeGameEnd
+            self.gameLenght = self.timeGameEnd - self.timeGameStart
             self.pop()
         return True

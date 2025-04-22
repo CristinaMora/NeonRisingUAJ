@@ -11,7 +11,7 @@ def processEvents(data):
     stack.append(RootDefinition(stack)) # Le metemos a la pila los eventos.
     i = 0 # Contador.
     
-    while i < total_events-1:
+    while i < total_events:
         # Guardamos el evento.
         currentEvent = sorted_data[i]
         # Si esta vacio, adios.
@@ -36,25 +36,21 @@ def processEvents(data):
     # Guardamos la media fallos de cada tipo de flecha por partida.
     tpArrowMiss=0
     dangeArrowMiss=0
-    gameLenght = 0
     #
-    
-    print(stack[0].sessions)
     for session in stack[0].sessions:
         accTpArrowMiss=0
         accDangeArrowMiss=0
         accGameLenght = 0
-        print(session.games)
         for game in session.games:
             accGameLenght += game.gameLenght
             pinhosDeads += game.pinhosDeadCount
             enemiesDeads += game.enemyDeadCount
-            cameraDeads += game.cameraDeadData
+            cameraDeads += len(game.cameraDeadData)
             accTpArrowMiss = len(game.arrowsTp)
             accDangeArrowMiss = len(game.arrowsDamage)
         tpArrowMiss += accTpArrowMiss / len(session.games)
         dangeArrowMiss += accDangeArrowMiss / len(session.games)
-        gameLenght += accGameLenght / len(session.games)
+        medianTimes += accGameLenght / len(session.games)
 
         
     
@@ -66,7 +62,6 @@ def processEvents(data):
         cameraDeads /= totalSessions
         tpArrowMiss /= totalSessions
         dangeArrowMiss /= totalSessions
-        gameLenght /= totalSessions
 
     return {
             "medianTime": medianTimes,
@@ -112,7 +107,7 @@ if __name__ == '__main__':
     tpArrows = statistics.median(tpMissedArrows)
     dangeArrows = statistics.median(dangeMissedArrows)
     
-    print(f"TIEMPO MEDIO POR SESION: {medianT}")
+    print(f"TIEMPO MEDIO POR SESION: {medianT/1000}")
     print(f"MEDIA DE MUERTES POR PINCHOS: {pinhos}")
     print(f"MEDIA DE MUERTES POR ENEMIGOS: {enemies}")
     print(f"MEDIA DE MUERTES POR CAMARA: {camera}")
