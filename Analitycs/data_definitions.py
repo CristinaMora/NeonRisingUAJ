@@ -17,61 +17,60 @@ class Definition:
 
 class RootDefinition(Definition):
     # Constructora.
-    def __init__(self, stack, superDef=None):
+    def __init__(self, stack, superDef=None) -> None:
         super().__init__(stack, superDef)
         self.sessions = []
     # Consume los eventos segun su tipo. 
-    def consumeEvent(self, event):
+    def consumeEvent(self, event)-> bool:
         if event['eventType'] == "SessionStart":
             self.stack.append(SessionDefinition(self.stack, self))
             return False
         return True
     # Cuando se quita de la pila.
-    def onPop(self, childrenDef):
+    def onPop(self, childrenDef) -> None:
+        print("ONPOP ROOT")
         self.sessions.append(childrenDef)
 
 class SessionDefinition(Definition):
     # Constructora.
     def __init__(self, stack, superDef = None) -> None:
+        super().__init__(stack, superDef)
         self.timeSessionStart = None
         self.timeSessionEnd = None
-        self.medianTimeGames = None
+        self.playedTime = None
         self.sessionId = None
         self.games = []
     # Consume los eventos segun su tipo.
-    def consumeEvent(self, event):
-        if event['eventType'] == "SessionStart":
+    def consumeEvent(self, event)-> bool:
+        if event['eventType'] == "GameStart":
+            self.stack.append(GameDefinition(self.stack, self))
+            return False
+        elif event['eventType'] == "SessionStart":
             self.timeSessionStart = event['timestamp']
         elif event['eventType'] == "SessionEnd":
             self.timeSessionEnd = event['timestamp']
-            # Calculamos la media de los tiempos.
-            acumulatedTimes = 0
-            for game in self.games:
-                acumulatedTimes += game.gameLenght
-            self.medianTimeGames=acumulatedTimes/len(self.games)
+            self.playedTime = self.timeSessionEnd - self.timeSessionStart
             self.pop()
-        elif event['eventType'] == "GameStart":
-            self.stack.append(GameDefinition(self.stack, self))
-            return False
         return True
     # Cuando se quita de la pila.
-    def onPop(self, childrenDef):
+    def onPop(self, childrenDef) -> None:
+        print("ONPOP SESSION")
         self.games.append(childrenDef)
 
 class GameDefinition(Definition):
     # Constructora.
-    def __init__(self, stack, superDef = None):
+    def __init__(self, stack, superDef = None) -> None:
         super().__init__(stack, superDef)
-        self.timeGameStart = None
-        self.timeGameEnd = None
-        self.gameLenght = None
-        self.pinhosDeadCount = None # 0
-        self.enemyDeadCount = None # 1
-        self.cameraDeadData = None # 2
-        self.arrowsDamage = None
-        self.arrowsTp = None
+        self.timeGameStart = 0
+        self.timeGameEnd = 0
+        self.gameLenght = 0
+        self.pinhosDeadCount = 0 # 0
+        self.enemyDeadCount = 0 # 1
+        self.cameraDeadData = [] # 2
+        self.arrowsDamage = []
+        self.arrowsTp = []
     # Consume los eventos segun su tipo.
-    def consumeEvent(self, event):
+    def consumeEvent(self, event) -> bool:
         if event['eventType'] == "PlayerDies": # Evento de muerte del jugador.
             if event['cause'] == 0: # Muere por pinchos.
                 self.pinhosDeadCount += 1
@@ -89,4 +88,5 @@ class GameDefinition(Definition):
         elif event['eventType'] == "GameEnd": # Evento de fin de partida.
             self.timeGameEnd = event['timestamp']
             self.gameLenght = self.timeGameStart - self.timeGameEnd
+            self.pop()
         return True
