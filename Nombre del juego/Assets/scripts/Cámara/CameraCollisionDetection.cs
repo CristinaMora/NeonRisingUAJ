@@ -8,7 +8,7 @@ public class CameraCollisionDetection : MonoBehaviour
     private GameObject _camera;
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.GetComponent<PlayerMovement>())
+        if (collision.GetComponent<PlayerMovement>() && collision.gameObject.activeSelf)
         {
             PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(Tracker.Instance.SessionId, transform.position, 
                 DeathCause.Camera);

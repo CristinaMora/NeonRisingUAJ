@@ -2382,5 +2382,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
+      propertyPath: authKey
+      value: 0000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
+      propertyPath: logFilename
+      value: Miguel
+      objectReference: {fileID: 0}
+    - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
+      propertyPath: eventsToWriteSizeInput
+      value: 100
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
