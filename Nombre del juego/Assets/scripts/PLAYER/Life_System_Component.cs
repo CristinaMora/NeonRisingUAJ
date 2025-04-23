@@ -16,6 +16,7 @@ public class Life_System_Component : MonoBehaviour
     {
         _currentlife = _maxlife;
     }
+
     public void Damage(int Damage)
     {
         _currentlife -= Damage;
@@ -24,10 +25,14 @@ public class Life_System_Component : MonoBehaviour
             Die();
         }
     }
+
     private void Die()
     {
         if (this.gameObject.GetComponent<Player_Life_Component>())
         {
+            PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(GameManager.Instance.gameId, transform.position,
+                DeathCause.Enemy);
+            Tracker.Instance.SendEvent(playerDiesEvent);
             GameManager.Instance.PlayerDies();
         }
         else if (this.gameObject.GetComponent<BossMovement_Component>())
@@ -41,6 +46,5 @@ public class Life_System_Component : MonoBehaviour
             AudioManager.Instance.Play("EnemyDie");
             UIManager.Instance.AddScore(enemyscore);
         }
-
     }
 }

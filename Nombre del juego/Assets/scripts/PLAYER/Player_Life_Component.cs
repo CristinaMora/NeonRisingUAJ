@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player_Life_Component : Life_System_Component
@@ -26,13 +24,5 @@ public class Player_Life_Component : Life_System_Component
             Instantiate(_explosion, transform.position, Quaternion.identity);
             gameObject.SetActive(false);
         }
-    }
-
-    public void Die()
-    {
-        PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(GameManager.Instance.gameId, transform.position,
-                DeathCause.Enemy);
-        Tracker.Instance.SendEvent(playerDiesEvent);
-        GameManager.Instance.PlayerDies();
     }
 }

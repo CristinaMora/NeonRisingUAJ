@@ -1,5 +1,0 @@
-[
-{"sessionId":"407c4848-1a5e-48d7-bd0c-3a1aba5bf000","eventType":"SessionStart","timestamp":1745429998327,"authKey":"SECRET_KEY"},
-{"sessionId":"407c4848-1a5e-48d7-bd0c-3a1aba5bf000","eventType":"GameStart","timestamp":1745430002586,"authKey":"SECRET_KEY","gameId":"dfc1c012-6cd8-4932-8d74-810b807d726d"},
-{"sessionId":"407c4848-1a5e-48d7-bd0c-3a1aba5bf000","eventType":"GameEnd","timestamp":1745430005162,"authKey":"SECRET_KEY","gameId":"dfc1c012-6cd8-4932-8d74-810b807d726d"},
-{"sessionId":"407c4848-1a5e-48d7-bd0c-3a1aba5bf000","eventType":"SessionEnd","timestamp":1745430007668,"authKey":"SECRET_KEY"}]
