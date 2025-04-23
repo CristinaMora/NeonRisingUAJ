@@ -143,12 +143,17 @@ if __name__ == '__main__':
         dangeMissedArrows.append(results['dangeMissedArrows'])
         all_death_positions.extend(death_positions)
 
-    medianT = statistics.median(medianTime)
-    pinhos = statistics.median(deathsPerPinhos)
-    enemies = statistics.median(deathsPerEnemies)
-    camera = statistics.median(deathsPerCamera)
-    tpArrows = statistics.median(tpMissedArrows)
-    dangeArrows = statistics.median(dangeMissedArrows)
+    medianT = statistics.mean(medianTime)
+    pinhos = statistics.mean(deathsPerPinhos)
+    enemies = statistics.mean(deathsPerEnemies)
+    camera = statistics.mean(deathsPerCamera)
+    tpArrows = statistics.mean(tpMissedArrows)
+    dangeArrows = statistics.mean(dangeMissedArrows)
+
+    #print("pinchos: ", deathsPerPinhos, "media: ", pinhos)
+    #print("enemigos: ", deathsPerEnemies, "media: ", enemies)
+    #print("camera: ", deathsPerCamera, "media: ", camera)
+    print("camera: ", tpMissedArrows, "media: ", tpArrows)
 
     # Verificar si se puede calcular la varianza y la moda
     medianTime_variance = round(statistics.variance(medianTime), 2) if len(medianTime) > 1 else 0
