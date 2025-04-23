@@ -151,18 +151,18 @@ if __name__ == '__main__':
         dangeMissedArrows.append(results['dangeMissedArrows'])
         all_death_positions.extend(death_positions)
     # Calculamos las medias.
-    medianT = statistics.mean(medianTime)
-    pinhos = statistics.mean(deathsPerPinhos)
-    enemies = statistics.mean(deathsPerEnemies)
-    camera = statistics.mean(deathsPerCamera)
-    tpArrows = statistics.mean(tpMissedArrows)
-    dangeArrows = statistics.mean(dangeMissedArrows)
+    medianT = statistics.median(medianTime)
+    pinhos = statistics.median(deathsPerPinhos)
+    enemies = statistics.median(deathsPerEnemies)
+    camera = statistics.median(deathsPerCamera)
+    tpArrows = statistics.median(tpMissedArrows)
+    dangeArrows = statistics.median(dangeMissedArrows)
     
     # Escribimos resultados.
-    print(f"TIEMPO MEDIO POR SESION: {round(medianT/1000, 2)}s Y VARIANZA: {round(statistics.variance(medianTime), 2)}")
-    print(f"MEDIA DE MUERTES POR PINCHOS: {round(pinhos, 2)} Y VARIANZA: {round(statistics.variance(deathsPerPinhos), 2)}")
-    print(f"MEDIA DE MUERTES POR ENEMIGOS: {round(enemies, 2)} Y VARIANZA: {round(statistics.variance(deathsPerEnemies), 2)}")
-    print(f"MEDIA DE MUERTES POR CAMARA: {round(camera, 2)} Y VARIANZA: {round(statistics.variance(deathsPerCamera), 2)}")
+    print(f"TIEMPO MEDIO POR SESION: {round(medianT/1000, 2)}s Y VARIANZA: {round(statistics.variance(medianTime), 2)} Y MODA: {round(statistics.mode(medianTime), 2)}")
+    print(f"MEDIA DE MUERTES POR PINCHOS: {round(pinhos, 2)} Y VARIANZA: {round(statistics.variance(deathsPerPinhos), 2)} Y MODA: {round(statistics.mode(deathsPerPinhos), 2)}")
+    print(f"MEDIA DE MUERTES POR ENEMIGOS: {round(enemies, 2)} Y VARIANZA: {round(statistics.variance(deathsPerEnemies), 2)} Y MODA: {round(statistics.mode(deathsPerEnemies), 2)}")
+    print(f"MEDIA DE MUERTES POR CAMARA: {round(camera, 2)} Y VARIANZA: {round(statistics.variance(deathsPerCamera), 2)} Y MODA: {round(statistics.mode(deathsPerCamera), 2)}")
     print(f"MEDIA DE FLECHAS DE TP FALLADAS: {round(tpArrows/100, 4)}%")
     print(f"MEDIA DE FLECHAS DE ATAQUE FALLADAS: {round(dangeArrows/100, 4)}%")
     
