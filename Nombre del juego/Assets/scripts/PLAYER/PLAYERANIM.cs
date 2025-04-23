@@ -18,7 +18,6 @@ public class PLAYERANIM : MonoBehaviour
 
     [SerializeField]
     private float runSpeed;
-    private float runProgression = 0;
 
     [SerializeField]
     private Sprite[] pJumpANIM;

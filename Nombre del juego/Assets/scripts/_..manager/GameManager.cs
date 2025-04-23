@@ -39,9 +39,8 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
-
-
     public string gameId;
+
     private void Awake()
     {
         if (_instance == null)
@@ -114,12 +113,12 @@ public class GameManager : MonoBehaviour
         Debug.Log("Fin de la sesion");
         SessionEndEvent sessionEndEvent = new SessionEndEvent();
         Tracker.Instance.SendEvent(sessionEndEvent);
-		Tracker.Instance.DestroyTracker();
-#if UNITY_EDITOR
 
+        Tracker.Instance.DestroyTracker();
+
+#if UNITY_EDITOR
 		EditorApplication.isPlaying = false;
 #else
-        
         Application.Quit();
 #endif
 	}

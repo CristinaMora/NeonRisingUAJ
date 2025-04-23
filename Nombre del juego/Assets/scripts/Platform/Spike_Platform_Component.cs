@@ -18,11 +18,8 @@ public class Spike_Platform_Component : MonoBehaviour
     #endregion
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        
-
         if (collision.gameObject.GetComponent<Player_Life_Component>())
         {
-
             PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(GameManager.Instance.gameId, collision.gameObject.transform.position,
                 DeathCause.Spikes);
             Tracker.Instance.SendEvent(playerDiesEvent);
@@ -32,8 +29,6 @@ public class Spike_Platform_Component : MonoBehaviour
             GameManager.Instance.PlayerDies();
             //se llama al gameover 
         }
-
-
     }
     // Start is called before the first frame update
     void Start()
