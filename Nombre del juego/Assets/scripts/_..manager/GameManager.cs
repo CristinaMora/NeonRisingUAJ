@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -38,6 +39,9 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+
+
+    public string gameId;
     private void Awake()
     {
        
@@ -46,7 +50,7 @@ public class GameManager : MonoBehaviour
         {
             _instance = this; 
             Debug.Log("Inicio de sesion");
-			SessionStartEvent sessionStartEvent = new SessionStartEvent(Tracker.Instance.SessionId);
+			SessionStartEvent sessionStartEvent = new SessionStartEvent();
 			Tracker.Instance.SendEvent(sessionStartEvent);
 		}
         else
@@ -63,7 +67,10 @@ public class GameManager : MonoBehaviour
         //Al darle al botón carga la escena principal
 
         Debug.Log("Juego Principal");
-        GameStartEvent gameStartEvent = new GameStartEvent(Tracker.Instance.SessionId);
+
+        gameId = Guid.NewGuid().ToString();
+
+		GameStartEvent gameStartEvent = new GameStartEvent(gameId);
         Tracker.Instance.SendEvent(gameStartEvent);
 
         SceneManager.LoadScene("SampleScene");
@@ -92,7 +99,7 @@ public class GameManager : MonoBehaviour
     public void RestartMatch()
     {
 		Debug.Log("Fin partida");
-		GameEndEvent gameEndEvent = new GameEndEvent(Tracker.Instance.SessionId);
+		GameEndEvent gameEndEvent = new GameEndEvent(gameId);
 		Tracker.Instance.SendEvent(gameEndEvent);
 
 		SceneManager.LoadScene("Main Menu");
@@ -107,7 +114,7 @@ public class GameManager : MonoBehaviour
     public void QuitGame()
     {
         Debug.Log("Fin de la sesion");
-        SessionEndEvent sessionEndEvent = new SessionEndEvent(Tracker.Instance.SessionId);
+        SessionEndEvent sessionEndEvent = new SessionEndEvent();
         Tracker.Instance.SendEvent(sessionEndEvent);
 		Tracker.Instance.DestroyTracker();
 #if UNITY_EDITOR
@@ -128,7 +135,7 @@ public class GameManager : MonoBehaviour
 	public void PlayerDies()
     {
         Debug.Log("Fin partida");
-        GameEndEvent gameEndEvent = new GameEndEvent(Tracker.Instance.SessionId);
+        GameEndEvent gameEndEvent = new GameEndEvent(GameManager.Instance.gameId);
         Tracker.Instance.SendEvent(gameEndEvent);
 
         Player_Life_Component.instance.isAlive = false;

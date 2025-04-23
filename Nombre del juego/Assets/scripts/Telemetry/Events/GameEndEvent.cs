@@ -1,18 +1,17 @@
 using System;
 
 [Serializable]
-public class GameEndEvent : Event
+public class GameEndEvent : GameEvent
 {
-    public long endTime;
-
+  
     public GameEndEvent(string gameId) : base(gameId, "GameEnd")
     {
-        endTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
     }
 
     public override string ToCSV()
     {
-        return base.ToCSV() + $",{endTime}";
+        return base.ToCSV() + $",{timestamp}";
     }
 }
 

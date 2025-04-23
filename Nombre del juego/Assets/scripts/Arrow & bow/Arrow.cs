@@ -28,7 +28,7 @@ public class Arrow : MonoBehaviour
             {
                 _alreadyHit = true;
 				Debug.Log("Arrow Certera");
-				arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Teleport,
+				arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Teleport,
 					transform.position, true);
 				Tracker.Instance.SendEvent(arrowShotEvent);
 			}
@@ -41,7 +41,7 @@ public class Arrow : MonoBehaviour
         else
         {
             Debug.Log("Arrow Fallida");
-            arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Teleport,
+            arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Teleport,
                 transform.position, false);
 			Tracker.Instance.SendEvent(arrowShotEvent);
 		}
