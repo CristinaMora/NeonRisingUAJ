@@ -28,33 +28,6 @@ public abstract class Event
     }
 
     /// <summary>
-    /// Obtiene el ID de la sesion
-    /// </summary>
-    /// <returns></returns>
-    public string GetSessionId()
-    {
-        return sessionId;
-    }
-
-    /// <summary>
-    /// Obtiene la marca de tiempo del evento
-    /// </summary>
-    /// <returns></returns>
-    public long GetTimestamp()
-    {
-        return timestamp;
-    }
-
-    /// <summary>
-    /// Establece la marca de tiempo del evento
-    /// </summary>
-    /// <param name="value"></param>
-    public void SetTimestamp(long value)
-    {
-        timestamp = value;
-    }
-
-    /// <summary>
     /// Devuelve el evento en formato JSON 
     /// </summary>
     /// <returns>Texto en formato JSON</returns>

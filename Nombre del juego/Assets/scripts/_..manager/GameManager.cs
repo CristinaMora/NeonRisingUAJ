@@ -178,7 +178,14 @@ public class GameManager : MonoBehaviour
 
     public void OnPlayerVictory()
     {
-        Time.timeScale = 0.0f;
+
+		PlayerWinsEvent playerWinsEvent = new PlayerWinsEvent(GameManager.Instance.gameId);
+		Tracker.Instance.SendEvent(playerWinsEvent);
+
+		GameEndEvent gameEndEvent = new GameEndEvent(GameManager.Instance.gameId);
+		Tracker.Instance.SendEvent(gameEndEvent);
+	
+		Time.timeScale = 0.0f;
         _bow.SetActive(false);
         _enemyDisp.SetActive(false);
         _enemyMov.SetActive(false);

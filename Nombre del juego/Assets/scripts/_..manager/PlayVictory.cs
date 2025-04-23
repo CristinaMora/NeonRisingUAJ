@@ -6,9 +6,6 @@ public class PlayVictory : MonoBehaviour
 {
     private void OnTriggerEnter2D()
     {
-        GameEndEvent gameEndEvent = new GameEndEvent(Tracker.Instance.SessionId);
-        Tracker.Instance.SendEvent(gameEndEvent);
-        Debug.Log("Entra");
         GameManager.Instance.OnPlayerVictory();
 
     }

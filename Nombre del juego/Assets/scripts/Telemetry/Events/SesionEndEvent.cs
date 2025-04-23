@@ -10,8 +10,4 @@ public class SessionEndEvent : Event
        
     }
 
-    public override string ToCSV()
-    {
-        return base.ToCSV() + $",{timestamp}";
-    }
 }

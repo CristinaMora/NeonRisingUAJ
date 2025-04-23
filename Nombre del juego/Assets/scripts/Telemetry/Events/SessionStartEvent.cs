@@ -9,8 +9,4 @@ public class SessionStartEvent : Event
     
     }
 
-    public override string ToCSV()
-    {
-        return base.ToCSV() + $",{timestamp}";
-    }
 }

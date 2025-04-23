@@ -8,10 +8,6 @@ public class GameStartEvent : GameEvent
     {
 
     }
-
-    public override string ToCSV()
-    {
-        return base.ToCSV() + $",{timestamp}";
-    }
+    
 }
 

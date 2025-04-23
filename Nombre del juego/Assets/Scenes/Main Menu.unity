@@ -561,6 +561,7 @@ MonoBehaviour:
   _Camera: {fileID: 0}
   _levelManager: {fileID: 0}
   _boss: {fileID: 0}
+  gameId: 
 --- !u!4 &704097834
 Transform:
   m_ObjectHideFlags: 0
@@ -2380,6 +2381,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6083694766547297472, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
+      propertyPath: format
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}

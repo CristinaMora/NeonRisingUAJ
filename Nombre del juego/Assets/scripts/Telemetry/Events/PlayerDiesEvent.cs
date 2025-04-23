@@ -22,6 +22,6 @@ public class PlayerDiesEvent : GameEvent
 
     public override string ToCSV()
     {
-        return base.ToCSV() + $",{timestamp},{position.x}:{position.y}:{position.z},{cause}";
+        return base.ToCSV() + $",{position.x}:{position.y}:{position.z},{cause}";
     }
 }

@@ -18,7 +18,7 @@ public class ArrowShotEvent : GameEvent
 
     public override string ToCSV()
     {
-        return base.ToCSV() + $",{timestamp},{arrowType},{position.x}:{position.y}:{position.z},{hasHit}";
+        return base.ToCSV() + $",{arrowType},{position.x}:{position.y}:{position.z},{hasHit}";
     }
 }
 
