@@ -8527,7 +8527,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7017067658100635705, guid: d4b581e1cf04aa54b97441415dc346ff, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 152.16129
+      value: 73.46129
       objectReference: {fileID: 0}
     - target: {fileID: 7017067658100635705, guid: d4b581e1cf04aa54b97441415dc346ff, type: 3}
       propertyPath: m_LocalPosition.z
@@ -18011,7 +18011,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1816113676273364457, guid: 634d4e90df1d7074694a5bf985b5c191, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 79.2
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1816113676273364457, guid: 634d4e90df1d7074694a5bf985b5c191, type: 3}
       propertyPath: m_LocalPosition.z
@@ -18064,6 +18064,10 @@ PrefabInstance:
     - target: {fileID: 1816113676273364459, guid: 634d4e90df1d7074694a5bf985b5c191, type: 3}
       propertyPath: m_Name
       value: Bow
+      objectReference: {fileID: 0}
+    - target: {fileID: 1816113676273364459, guid: 634d4e90df1d7074694a5bf985b5c191, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 634d4e90df1d7074694a5bf985b5c191, type: 3}

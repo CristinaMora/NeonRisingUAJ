@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 /// <summary>
 /// Clase para editar la configuraci�n de la telemetria desde el inspector de Unity.
 /// Para usarla, añade este script a un GameObject en la escena.
@@ -27,7 +26,6 @@ public class ConfigEditor : MonoBehaviour
 
 
 	static private ConfigEditor _instance;
-
 	private Tracker _tracker;
 	private void Awake()
 	{
