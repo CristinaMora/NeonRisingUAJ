@@ -90,7 +90,11 @@ public class GameManager : MonoBehaviour
     }
     public void RestartMatch()
     {
-        SceneManager.LoadScene("Main Menu");
+		Debug.Log("Fin partida");
+		GameEndEvent gameEndEvent = new GameEndEvent(Tracker.Instance.SessionId);
+		Tracker.Instance.SendEvent(gameEndEvent);
+
+		SceneManager.LoadScene("Main Menu");
         AudioManager.Instance.Stop("Win");
         AudioManager.Instance.Stop("Lose");
         AudioManager.Instance.Stop("Main");
@@ -120,7 +124,7 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance.Play("Menu");
         _arcade = false;
     }
-    public void PlayerDies()
+	public void PlayerDies()
     {
         Debug.Log("Fin partida");
         GameEndEvent gameEndEvent = new GameEndEvent(Tracker.Instance.SessionId);
