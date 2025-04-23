@@ -9,20 +9,6 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 
-// Al disenarlo hay que tener en cuenta que vamos a hacer cuando se producen ciertos
-// eventos catastroficos:
-// � Nos hemos quedado sin espacio.
-// � No tenemos red. -> guardar en local hasta que haya red
-// � No tenemos permisos para almacenar los eventos.
-// � Consumo de bater�a y datos (moviles).
-// � El usuario reinstala la aplicacion (dejamos de tener info del usuario concreto, si
-// fuese necesario).
-// � El usuario modifica los datos enviados (poco probable en metricas).
-// � Privacidad en distintas regiones/paises.
-
-// TODO: Crear eventos genericos
-// TODO: Manejar eventos puntuales donde se guardan en escenas especificas
-
 public class Tracker
 {
     public enum Format { JSON, CSV/*, ... Otros formatos */ }; // Formatos disponibles para guardar los eventos
@@ -47,9 +33,9 @@ public class Tracker
     // https://learn.microsoft.com/en-us/dotnet/api/system.collections.concurrent.concurrentqueue-1?view=net-9.0
     private ConcurrentQueue<Event> eventQueue;
     // Opcional: Serializacion y persistencia en una hebra independiente de la del videojuego
-    private Thread eventThread;         // Hilo con bucle que gestiona la cola de eventos
-    private bool runningThread = true;  // False para dejar de ejecutar el hilo (Al cerrar el juego)
-    private bool flushQueue = false;    // Booleano para que flushee la cola solo cuando queremos
+    private Thread eventThread;                                     // Hilo con bucle que gestiona la cola de eventos
+    private volatile bool runningThread = true;                     // False para dejar de ejecutar el hilo (Al cerrar el juego)
+    private volatile bool flushQueue = false;                       // Booleano para que flushee la cola solo cuando queremos
     private AutoResetEvent writeSignal = new AutoResetEvent(false); // Senial mandada cuando queremos que se escriba un evento (por tiempo o flush)
     
     // Opcional: Manejar eventos muestreables (solamente escribir cada cierto tiempo)
@@ -65,7 +51,6 @@ public class Tracker
         }
     }
 
-    
     public Tracker()
     {
         _instance = this;
@@ -223,7 +208,7 @@ public class Tracker
                 Debug.LogError("Error sending event to Google Sheets: " + response.StatusCode);
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.LogError("Exception sending event to Google Sheets: " + ex.Message);
         }
@@ -270,6 +255,8 @@ public class Tracker
                     default:
                         break;
                 }
+
+                if (flushQueue) flushQueue = false;
             }
         }
         catch (Exception e)
@@ -297,8 +284,10 @@ public class Tracker
     {
         eventQueue.Enqueue(e);
 
-        // Si supera un maximo escribe
-        if (eventQueue.Count >= EVENTS_TO_WRITE_SIZE)
+        // Si es en local, si supera un maximo escribe o si es servidor, envia directamente
+        if ((persType == PersistenceType.LOCAL && eventQueue.Count >= EVENTS_TO_WRITE_SIZE) ||
+            ((persType == PersistenceType.DATABASE || persType == PersistenceType.WEBSERVER) &&
+            eventQueue.Count >= 1))
         {
             // Despertamos el hilo
             writeSignal.Set();
@@ -351,16 +340,12 @@ public class Tracker
 
         if (batch.Length > 0)
             File.AppendAllText(localPath, batch.ToString());
-
-		// En caso de que este vaciando la cola entera, resetea la variable de control
-		if (flushQueue) flushQueue = false;
     }
 	private bool IsFirstJsonEntry()
 	{
 		if (!File.Exists(localPath)) return true;
 
 		string content = File.ReadAllText(localPath).Trim();
-
 		
 		return content == "[" || content == "[\n";
 	}
@@ -370,16 +355,12 @@ public class Tracker
 	/// </summary>
 	private void FlushQueueToFirebase()
     {
-        int i = 0;
-        while (eventQueue.TryDequeue(out Event e) && (i < EVENTS_TO_WRITE_SIZE || flushQueue))
+        while (eventQueue.TryDequeue(out Event e))
         {
             if (e != null)
                 SendEventToFirebase(e);
-            i++;
         }
 
-        // En caso de que este vaciando la cola entera, resetea la variable de control
-        if (flushQueue) flushQueue = false;
     }
 
     /// <summary>
@@ -389,7 +370,8 @@ public class Tracker
     {
         while (eventQueue.TryDequeue(out Event e))
         {
-            SendEventToWebServer(e);
+            if (e != null)
+                SendEventToWebServer(e);
         }
     }
     #endregion
@@ -409,18 +391,25 @@ public class Tracker
         writeSignal.Set();
 
         // Si el hilo sigue activo
-        if (eventThread.IsAlive)  // Espera a que el hilo termine para continuar (Para que no haya problemas al cerrar el juego)
-            eventThread.Join(); // Este metodo puede provocar la congelacion del hilo principal, pero como lo vamos a usar al cerrar el juego no deberia dar problemas (Consultar con el grupo)
+        if (eventThread != null && eventThread.IsAlive)  // Espera a que el hilo termine para continuar
+            eventThread.Join();
 
-		// Escribe "]" si es JSON
-		if (format == Format.JSON)
-		{
-            // Solo escribir si no existe la llave final
-            string content = File.ReadAllText(localPath).TrimEnd();
-            if (!content.EndsWith("]"))
-            {
-                File.AppendAllText(localPath, "]");
-            }
+        switch (persType)
+        {
+            case PersistenceType.LOCAL:
+                switch (format)
+                {
+                    // Escribe "]" si es JSON
+                    case Format.JSON:
+                        // Solo escribir si no existe la llave final
+                        string content = File.ReadAllText(localPath).TrimEnd();
+                        if (!content.EndsWith("]"))
+                        {
+                            File.AppendAllText(localPath, "]");
+                        }
+                        break;
+                }
+                break;
         }
 	}
 }

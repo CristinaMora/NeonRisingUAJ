@@ -43,6 +43,4 @@ public class Life_System_Component : MonoBehaviour
         }
 
     }
-    
-
 }

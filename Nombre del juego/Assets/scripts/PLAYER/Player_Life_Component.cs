@@ -27,15 +27,7 @@ public class Player_Life_Component : Life_System_Component
             gameObject.SetActive(false);
         }
     }
-    
-    public void Damage(int damage)
-    {
-       _currentlife -= damage;
-        if (_currentlife <= 0)
-        {
-            Die();
-        }
-    }
+
     public void Die()
     {
         PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(GameManager.Instance.gameId, transform.position,
