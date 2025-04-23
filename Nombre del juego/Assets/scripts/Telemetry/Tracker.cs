@@ -100,6 +100,7 @@ public class Tracker
     private void CreateLocalLogFile()
     {
         localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename();
+        // Para cada formato añadimos la extensión correspondiente.
         switch (format)
         {
             case Format.CSV:
@@ -107,6 +108,8 @@ public class Tracker
 				break;
             case Format.JSON:
 				localPath += ".json";
+
+                // Si no existe el archivo, lo creamos y escribimos el inicio del JSON
                 if (!File.Exists(localPath))
                 {
                     // No existe: lo creamos y escribimos [
@@ -115,18 +118,19 @@ public class Tracker
                 else
                 {
                     string content = File.ReadAllText(localPath).TrimEnd();
-
-                    if (string.IsNullOrWhiteSpace(content))
+					
+                    // Existe pero está vacío
+					if (string.IsNullOrWhiteSpace(content))
                     {
-                        // Existe pero está vacío
                         File.WriteAllText(localPath, "[\n");
                     }
                     else
                     {
-                        int lastBracketIndex = content.LastIndexOf(']');
+
+						// Quitamos el cierre, la coma se escribirá luego, pero vamos a introducir un salto de línea para diferenciar entre sesiones.
+						int lastBracketIndex = content.LastIndexOf(']');
                         if (lastBracketIndex != -1)
                         {
-                            // Quitamos el cierre y agregamos una coma para continuar escribiendo
                             content = content.Substring(0, lastBracketIndex).TrimEnd();
                             File.WriteAllText(localPath, content + "\n");
                         }
@@ -334,6 +338,7 @@ public class Tracker
 
 			    if (format == Format.JSON)
                 {
+                    // En caso de no ser el primero, necesita una coma delante.
                     if (!isFirst)
                         batch.Append(",\n");
                     batch.Append(data);
@@ -350,7 +355,8 @@ public class Tracker
         if (batch.Length > 0)
             File.AppendAllText(localPath, batch.ToString());
 
-        if (flushQueue) flushQueue = false;
+		// En caso de que este vaciando la cola entera, resetea la variable de control
+		if (flushQueue) flushQueue = false;
     }
 	private bool IsFirstJsonEntry()
 	{
