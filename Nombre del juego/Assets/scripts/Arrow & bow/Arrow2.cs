@@ -26,20 +26,20 @@ public class Arrow2 : MonoBehaviour
                 GameManager.Instance.EnemyDamage(Damage, collision.gameObject);
 
                 Debug.Log("Shoot acertado");
-                arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Damage,
+                arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Damage,
                     transform.position, true);
             }
             else
             {
                 Debug.Log("Shoot fallado");
-                arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Damage,
+                arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Damage,
                     transform.position, false);
             }
         }
         else
         {
             Debug.Log("Shoot fallado");
-            arrowShotEvent = new ArrowShotEvent(Tracker.Instance.SessionId, ArrowShotEvent.ArrowType.Damage,
+            arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Damage,
                 transform.position, false);
         }
       

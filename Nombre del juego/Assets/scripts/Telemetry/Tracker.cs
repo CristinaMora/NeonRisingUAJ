@@ -46,7 +46,7 @@ public class Tracker
     // gestiona las concurrencias que pueda haber
     // https://learn.microsoft.com/en-us/dotnet/api/system.collections.concurrent.concurrentqueue-1?view=net-9.0
     private ConcurrentQueue<Event> eventQueue;
-    // Opcional: Serializacion y persistencia en una hebra independiente de la del videojuego.
+    // Opcional: Serializacion y persistencia en una hebra independiente de la del videojuego
     private Thread eventThread;         // Hilo con bucle que gestiona la cola de eventos
     private bool runningThread = true;  // False para dejar de ejecutar el hilo (Al cerrar el juego)
     private bool flushQueue = false;    // Booleano para que flushee la cola solo cuando queremos
@@ -89,9 +89,7 @@ public class Tracker
         }
 
         InitiateLoop();
-
     }
-
 
     #region Persistencia Local
     /// <summary>
@@ -100,6 +98,7 @@ public class Tracker
     private void CreateLocalLogFile()
     {
         localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename();
+        // Para cada formato añadimos la extensión correspondiente.
         switch (format)
         {
             case Format.CSV:
@@ -107,6 +106,8 @@ public class Tracker
 				break;
             case Format.JSON:
 				localPath += ".json";
+
+                // Si no existe el archivo, lo creamos y escribimos el inicio del JSON
                 if (!File.Exists(localPath))
                 {
                     // No existe: lo creamos y escribimos [
@@ -115,18 +116,19 @@ public class Tracker
                 else
                 {
                     string content = File.ReadAllText(localPath).TrimEnd();
-
-                    if (string.IsNullOrWhiteSpace(content))
+					
+                    // Existe pero está vacío
+					if (string.IsNullOrWhiteSpace(content))
                     {
-                        // Existe pero está vacío
                         File.WriteAllText(localPath, "[\n");
                     }
                     else
                     {
-                        int lastBracketIndex = content.LastIndexOf(']');
+
+						// Quitamos el cierre, la coma se escribirá luego, pero vamos a introducir un salto de línea para diferenciar entre sesiones.
+						int lastBracketIndex = content.LastIndexOf(']');
                         if (lastBracketIndex != -1)
                         {
-                            // Quitamos el cierre y agregamos una coma para continuar escribiendo
                             content = content.Substring(0, lastBracketIndex).TrimEnd();
                             File.WriteAllText(localPath, content + "\n");
                         }
@@ -195,9 +197,9 @@ public class Tracker
     }
     #endregion
 
-    #region Persistencia por servidor web
+    #region Persistencia con Google Sheets + AppScript
     /// <summary>
-    /// Envtio de trazas por servidor web
+    /// Envio de trazas por servidor web a Google Sheets + AppScript
     /// </summary>
     private async void SendEventToWebServer(Event e)
     {
@@ -286,7 +288,6 @@ public class Tracker
         writeSignal.Set();
     }
 
-
     /// <summary>
     /// Mete un elemento en la cola de eventos y si supera un maximo,
     /// hace flush dependiendo del tipo de persistencia
@@ -334,6 +335,7 @@ public class Tracker
 
 			    if (format == Format.JSON)
                 {
+                    // En caso de no ser el primero, necesita una coma delante.
                     if (!isFirst)
                         batch.Append(",\n");
                     batch.Append(data);
@@ -350,7 +352,8 @@ public class Tracker
         if (batch.Length > 0)
             File.AppendAllText(localPath, batch.ToString());
 
-        if (flushQueue) flushQueue = false;
+		// En caso de que este vaciando la cola entera, resetea la variable de control
+		if (flushQueue) flushQueue = false;
     }
 	private bool IsFirstJsonEntry()
 	{
@@ -391,7 +394,6 @@ public class Tracker
     }
     #endregion
 
-
     /// <summary>
     /// Metodo para cerrar los archivos y acabar con el bucle del hilo
     /// </summary>
@@ -406,7 +408,6 @@ public class Tracker
         // Inicia la ultima iteracion del bucle del hilo
         writeSignal.Set();
 
-
         // Si el hilo sigue activo
         if (eventThread.IsAlive)  // Espera a que el hilo termine para continuar (Para que no haya problemas al cerrar el juego)
             eventThread.Join(); // Este metodo puede provocar la congelacion del hilo principal, pero como lo vamos a usar al cerrar el juego no deberia dar problemas (Consultar con el grupo)
@@ -414,7 +415,12 @@ public class Tracker
 		// Escribe "]" si es JSON
 		if (format == Format.JSON)
 		{
-			File.AppendAllText(localPath, "]");
-		}
+            // Solo escribir si no existe la llave final
+            string content = File.ReadAllText(localPath).TrimEnd();
+            if (!content.EndsWith("]"))
+            {
+                File.AppendAllText(localPath, "]");
+            }
+        }
 	}
 }

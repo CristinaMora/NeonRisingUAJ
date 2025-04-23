@@ -208,7 +208,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1781056222}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: StartMatch2
+        m_MethodName: StartMatch
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -561,6 +561,7 @@ MonoBehaviour:
   _Camera: {fileID: 0}
   _levelManager: {fileID: 0}
   _boss: {fileID: 0}
+  gameId: 
 --- !u!4 &704097834
 Transform:
   m_ObjectHideFlags: 0
@@ -2058,7 +2059,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: tutorial
+  m_text: Main Level
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
@@ -2383,12 +2384,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
+      propertyPath: format
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
       propertyPath: authKey
       value: 0000
       objectReference: {fileID: 0}
     - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
       propertyPath: logFilename
-      value: Filename1
+      value: FilenameEx
       objectReference: {fileID: 0}
     - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
       propertyPath: eventsToWriteSizeInput

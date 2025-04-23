@@ -24,6 +24,9 @@ public class ConfigEditor : MonoBehaviour
 
 	private int EVENTS_TO_WRITE_SIZE;
 
+
+	static private ConfigEditor _instance;
+	private Tracker _tracker;
 	private void Awake()
 	{
 		ConfigManager.SetAuthKey(authKey);
@@ -42,7 +45,15 @@ public class ConfigEditor : MonoBehaviour
 			Debug.LogWarning("El valor de 'eventsToWriteSizeInput' no es válido para EVENTS_TO_WRITE_SIZE.");
 		}
 
-		new Tracker();
+		if (_instance == null)
+		{
+			_instance = this;
+			if(_tracker == null)
+				_tracker = new Tracker();
+		}
+		
+
+		DontDestroyOnLoad(gameObject);
 	}
 	
 }

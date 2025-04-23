@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -28,13 +29,9 @@ public class GameManager : MonoBehaviour
 
     private CamaraMovement _camMov;
 
-    private bool _menu = true;
-
     private bool _arcade = false;
 
     private Player_Life_Component _myPlayer_Life_Component;
-
-    private Transform _finishLine;
 
     public LevelManager _levelManager;
 
@@ -43,26 +40,24 @@ public class GameManager : MonoBehaviour
     #endregion
 
 
+
+    public string gameId;
     private void Awake()
     {
-
         if (_instance == null)
         {
-            _instance = this;
-
+            _instance = this; 
             Debug.Log("Inicio de sesion");
-            SessionStartEvent sessionStartEvent = new SessionStartEvent(Tracker.Instance.SessionId);
-            Tracker.Instance.SendEvent(sessionStartEvent);
-
-        }
+			SessionStartEvent sessionStartEvent = new SessionStartEvent();
+			Tracker.Instance.SendEvent(sessionStartEvent);
+		}
         else
         {
             Destroy(gameObject);
         }
+
         DontDestroyOnLoad(gameObject);
-
     }
-
 
     public void StartMatch()
     {
@@ -70,7 +65,10 @@ public class GameManager : MonoBehaviour
         //Al darle al botón carga la escena principal
 
         Debug.Log("Juego Principal");
-        GameStartEvent gameStartEvent = new GameStartEvent(Tracker.Instance.SessionId);
+
+        gameId = Guid.NewGuid().ToString();
+
+		GameStartEvent gameStartEvent = new GameStartEvent(gameId);
         Tracker.Instance.SendEvent(gameStartEvent);
 
         SceneManager.LoadScene("SampleScene");
@@ -98,7 +96,11 @@ public class GameManager : MonoBehaviour
     }
     public void RestartMatch()
     {
-        SceneManager.LoadScene("Main Menu");
+		Debug.Log("Fin partida");
+		GameEndEvent gameEndEvent = new GameEndEvent(gameId);
+		Tracker.Instance.SendEvent(gameEndEvent);
+
+		SceneManager.LoadScene("Main Menu");
         AudioManager.Instance.Stop("Win");
         AudioManager.Instance.Stop("Lose");
         AudioManager.Instance.Stop("Main");
@@ -110,11 +112,11 @@ public class GameManager : MonoBehaviour
     public void QuitGame()
     {
         Debug.Log("Fin de la sesion");
-        SessionEndEvent sessionEndEvent = new SessionEndEvent(Tracker.Instance.SessionId);
+        SessionEndEvent sessionEndEvent = new SessionEndEvent();
         Tracker.Instance.SendEvent(sessionEndEvent);
-
+		Tracker.Instance.DestroyTracker();
 #if UNITY_EDITOR
-		
+
 		EditorApplication.isPlaying = false;
 #else
         
@@ -128,10 +130,10 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance.Play("Menu");
         _arcade = false;
     }
-    public void PlayerDies()
+	public void PlayerDies()
     {
         Debug.Log("Fin partida");
-        GameEndEvent gameEndEvent = new GameEndEvent(Tracker.Instance.SessionId);
+        GameEndEvent gameEndEvent = new GameEndEvent(GameManager.Instance.gameId);
         Tracker.Instance.SendEvent(gameEndEvent);
 
         Player_Life_Component.instance.isAlive = false;
@@ -174,7 +176,14 @@ public class GameManager : MonoBehaviour
 
     public void OnPlayerVictory()
     {
-        Time.timeScale = 0.0f;
+
+		PlayerWinsEvent playerWinsEvent = new PlayerWinsEvent(GameManager.Instance.gameId);
+		Tracker.Instance.SendEvent(playerWinsEvent);
+
+		GameEndEvent gameEndEvent = new GameEndEvent(GameManager.Instance.gameId);
+		Tracker.Instance.SendEvent(gameEndEvent);
+	
+		Time.timeScale = 0.0f;
         _bow.SetActive(false);
         _enemyDisp.SetActive(false);
         _enemyMov.SetActive(false);
@@ -183,16 +192,12 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance.Stop("Arcade");
         AudioManager.Instance.Play("Win");
         UIManager.Instance.SetVictoryMenu(true);
-
     }
-
-
 
     private void OnLevelWasLoaded(int level)  //cada vez que se cargue la escena principal
     {
         if (level != 0)
         {
-            _menu = false;
             _levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
             if (level == 3)
             {
@@ -212,7 +217,6 @@ public class GameManager : MonoBehaviour
                 _Camera = _levelManager._Camera;
                 _enemyDisp = _levelManager._enemyDisp;
                 _enemyMov = _levelManager._enemyMov;
-                _finishLine = _levelManager._finishLine;
                 if (level == 1)
                 {
                     _boss = _levelManager._boss;
@@ -229,9 +233,9 @@ public class GameManager : MonoBehaviour
                 _myPlayer_Life_Component = _player.GetComponent<Player_Life_Component>();
                 UIManager.Instance.UpdateScore(true);
             }
-
         }
     }
+
     public void OnPlayerDefeat()
     {
         if (_arcade) { _Camera.GetComponent<CameraArcade>().enabled = false; }
@@ -245,5 +249,4 @@ public class GameManager : MonoBehaviour
         _player.SetActive(false);
         Time.timeScale = 0.0f;
     }
-
 }

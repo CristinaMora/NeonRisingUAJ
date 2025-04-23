@@ -38,7 +38,7 @@ public class Player_Life_Component : Life_System_Component
     }
     public void Die()
     {
-        PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(Tracker.Instance.SessionId, transform.position,
+        PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(GameManager.Instance.gameId, transform.position,
                 DeathCause.Enemy);
         Tracker.Instance.SendEvent(playerDiesEvent);
         GameManager.Instance.PlayerDies();

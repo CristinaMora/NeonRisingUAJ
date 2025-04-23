@@ -19,7 +19,7 @@ public class Life_System_Component : MonoBehaviour
     public void Damage(int Damage)
     {
         _currentlife -= Damage;
-        if (_currentlife <= 0)
+        if (_currentlife <= 0 )
         {
             Die();
         }
@@ -28,11 +28,7 @@ public class Life_System_Component : MonoBehaviour
     {
         if (this.gameObject.GetComponent<Player_Life_Component>())
         {
-            PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(Tracker.Instance.SessionId, transform.position,
-                DeathCause.Enemy);
-            Tracker.Instance.SendEvent(playerDiesEvent);
             GameManager.Instance.PlayerDies();
-
         }
         else if (this.gameObject.GetComponent<BossMovement_Component>())
         {

@@ -8,7 +8,7 @@ using UnityEngine;
 public abstract class Event
 {
     public string sessionId;            // ID de la sesion en la que se genera el evento
-    public string gameId;               // ID unico del evento
+   
     public string eventType;            // Tipo de evento
     public long timestamp;              // Momento en el que se ha generado el evento
     public string authKey;              // Clave de autenticacion para el envio del evento
@@ -18,58 +18,13 @@ public abstract class Event
     /// </summary>
     /// <param name="gameId">Identificador de la partida</param>
     /// <param name="eventType">Tipo de evento</param>
-    protected Event(string gameId, string eventType)
+    protected Event(string eventType)
     {
         sessionId = Tracker.Instance.SessionId;
-        this.gameId = gameId;
+     
         this.eventType = eventType;
         timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         authKey = ConfigManager.GetAuthKey();
-    }
-
-    /// <summary>
-    /// Obtiene el ID de la sesion
-    /// </summary>
-    /// <returns></returns>
-    public string GetSessionId()
-    {
-        return sessionId;
-    }
-
-    /// <summary>
-    /// Obtiene el ID de la partida
-    /// </summary>
-    /// <returns></returns>
-    public string GetGameId()
-    {
-        return gameId;
-    }
-
-    /// <summary>
-    /// Establece el ID de la partida
-    /// </summary>
-    /// <param name="value"></param>
-    public void SetGameId(string value)
-    {
-        gameId = value;
-    }
-
-    /// <summary>
-    /// Obtiene la marca de tiempo del evento
-    /// </summary>
-    /// <returns></returns>
-    public long GetTimestamp()
-    {
-        return timestamp;
-    }
-
-    /// <summary>
-    /// Establece la marca de tiempo del evento
-    /// </summary>
-    /// <param name="value"></param>
-    public void SetTimestamp(long value)
-    {
-        timestamp = value;
     }
 
     /// <summary>
@@ -87,7 +42,7 @@ public abstract class Event
     /// <returns>Texto en formato CSV</returns>
     public virtual string ToCSV()
     {
-        return $"{sessionId},{gameId},{eventType},{timestamp}";
+        return $"{sessionId},{eventType},{timestamp}";
     }
 
     // Otros formatos...
