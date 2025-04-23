@@ -22,7 +22,7 @@ public class Arrow : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         ArrowShotEvent arrowShotEvent;
-        if (collision.gameObject.GetComponent<CameraFollow>() == false)
+        if (collision.gameObject.GetComponent<CameraCollisionDetection>() == false)
         {
             if (!_alreadyHit) 
             {
