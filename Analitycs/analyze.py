@@ -72,7 +72,6 @@ def processEvents(data):
         dangeArrowMiss /= totalSessions
 
     return {
-            "totalSessions": totalSessions,
             "medianTime": medianTimes,
             "deathsPerPinhos": pinhosDeads,
             "deathsPerEnemies": enemiesDeads,
@@ -117,7 +116,6 @@ if __name__ == '__main__':
     folder_path = './data'
     
     # Metricas que queremos
-    totalSessions = 0
     medianTime = []
     deathsPerPinhos = []
     deathsPerEnemies = []
@@ -134,7 +132,6 @@ if __name__ == '__main__':
                 results, death_positions = processEvents(data)
 
         # Resultados
-        totalSessions = results['totalSessions']
         medianTime.append(results['medianTime'])
         deathsPerPinhos.append(results['deathsPerPinhos'])
         deathsPerEnemies.append(results['deathsPerEnemies'])
@@ -166,7 +163,6 @@ if __name__ == '__main__':
     deathsPerEnemies_mode = round(statistics.mode(deathsPerEnemies), 2) if len(deathsPerEnemies) > 0 else "N/A"
     deathsPerCamera_mode = round(statistics.mode(deathsPerCamera), 2) if len(deathsPerCamera) > 0 else "N/A"
 
-    print("NUMERO DE SESIONES: " + str(totalSessions))
     print(f"TIEMPO MEDIO POR SESION: {round(medianT/1000, 2)}s Y VARIANZA: {medianTime_variance} Y MODA: {medianTime_mode}")
     print(f"MEDIA DE MUERTES POR PINCHOS: {round(pinhos, 2)} Y VARIANZA: {deathsPerPinhos_variance} Y MODA: {deathsPerPinhos_mode}")
     print(f"MEDIA DE MUERTES POR ENEMIGOS: {round(enemies, 2)} Y VARIANZA: {deathsPerEnemies_variance} Y MODA: {deathsPerEnemies_mode}")
