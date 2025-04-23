@@ -3,7 +3,7 @@ import os
 import statistics
 from data_definitions import RootDefinition
 import matplotlib.pyplot as plt
-import seaborn as sns
+#import seaborn as sns
 import numpy as np
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.image as mpimg
@@ -76,6 +76,8 @@ def processEvents(data):
         cameraDeads /= totalSessions
         tpArrowMiss /= totalSessions
         dangeArrowMiss /= totalSessions
+
+        print("totalSessions: ", totalSessions)
 
     # Y lo devolvemos.
     return {
