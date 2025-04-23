@@ -150,16 +150,22 @@ if __name__ == '__main__':
     tpArrows = statistics.median(tpMissedArrows)
     dangeArrows = statistics.median(dangeMissedArrows)
 
-    # Verificar si se puede calcular la varianza (se necesita mas de uno)
+    # Verificar si se puede calcular la varianza y la moda
     medianTime_variance = round(statistics.variance(medianTime), 2) if len(medianTime) > 1 else 0
     deathsPerPinhos_variance = round(statistics.variance(deathsPerPinhos), 2) if len(deathsPerPinhos) > 1 else 0
     deathsPerEnemies_variance = round(statistics.variance(deathsPerEnemies), 2) if len(deathsPerEnemies) > 1 else 0
     deathsPerCamera_variance = round(statistics.variance(deathsPerCamera), 2) if len(deathsPerCamera) > 1 else 0
 
-    print(f"TIEMPO MEDIO POR SESION: {round(medianT/1000, 2)}s Y VARIANZA: {round(statistics.variance(medianTime), 2)} Y MODA: {round(statistics.mode(medianTime), 2)}")
-    print(f"MEDIA DE MUERTES POR PINCHOS: {round(pinhos, 2)} Y VARIANZA: {round(statistics.variance(deathsPerPinhos), 2)} Y MODA: {round(statistics.mode(deathsPerPinhos), 2)}")
-    print(f"MEDIA DE MUERTES POR ENEMIGOS: {round(enemies, 2)} Y VARIANZA: {round(statistics.variance(deathsPerEnemies), 2)} Y MODA: {round(statistics.mode(deathsPerEnemies), 2)}")
-    print(f"MEDIA DE MUERTES POR CAMARA: {round(camera, 2)} Y VARIANZA: {round(statistics.variance(deathsPerCamera), 2)} Y MODA: {round(statistics.mode(deathsPerCamera), 2)}")
+    medianTime_mode = round(statistics.mode(medianTime), 2) if len(medianTime) > 0 else "N/A"
+    deathsPerPinhos_mode = round(statistics.mode(deathsPerPinhos), 2) if len(deathsPerPinhos) > 0 else "N/A"
+    deathsPerEnemies_mode = round(statistics.mode(deathsPerEnemies), 2) if len(deathsPerEnemies) > 0 else "N/A"
+    deathsPerCamera_mode = round(statistics.mode(deathsPerCamera), 2) if len(deathsPerCamera) > 0 else "N/A"
+
+    print("NUMERO DE SESIONES: " + str(totalSessions))
+    print(f"TIEMPO MEDIO POR SESION: {round(medianT/1000, 2)}s Y VARIANZA: {medianTime_variance} Y MODA: {medianTime_mode}")
+    print(f"MEDIA DE MUERTES POR PINCHOS: {round(pinhos, 2)} Y VARIANZA: {deathsPerPinhos_variance} Y MODA: {deathsPerPinhos_mode}")
+    print(f"MEDIA DE MUERTES POR ENEMIGOS: {round(enemies, 2)} Y VARIANZA: {deathsPerEnemies_variance} Y MODA: {deathsPerEnemies_mode}")
+    print(f"MEDIA DE MUERTES POR CAMARA: {round(camera, 2)} Y VARIANZA: {deathsPerCamera_variance} Y MODA: {deathsPerCamera_mode}")
     print(f"MEDIA DE FLECHAS DE TP FALLADAS: {round(tpArrows/100, 4)}%")
     print(f"MEDIA DE FLECHAS DE ATAQUE FALLADAS: {round(dangeArrows/100, 4)}%")
 
