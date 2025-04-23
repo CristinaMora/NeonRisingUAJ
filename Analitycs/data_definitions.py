@@ -28,7 +28,6 @@ class RootDefinition(Definition):
         return True
     # Cuando se quita de la pila.
     def onPop(self, childrenDef) -> None:
-        print("ONPOP ROOT")
         self.sessions.append(childrenDef)
 
 class SessionDefinition(Definition):
@@ -54,7 +53,6 @@ class SessionDefinition(Definition):
         return True
     # Cuando se quita de la pila.
     def onPop(self, childrenDef) -> None:
-        print("ONPOP SESSION")
         self.games.append(childrenDef)
 
 class GameDefinition(Definition):

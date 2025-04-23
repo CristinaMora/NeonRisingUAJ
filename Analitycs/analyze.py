@@ -151,12 +151,12 @@ if __name__ == '__main__':
         dangeMissedArrows.append(results['dangeMissedArrows'])
         all_death_positions.extend(death_positions)
     # Calculamos las medias.
-    medianT = statistics.median(medianTime)
-    pinhos = statistics.median(deathsPerPinhos)
-    enemies = statistics.median(deathsPerEnemies)
-    camera = statistics.median(deathsPerCamera)
-    tpArrows = statistics.median(tpMissedArrows)
-    dangeArrows = statistics.median(dangeMissedArrows)
+    medianT = statistics.mean(medianTime)
+    pinhos = statistics.mean(deathsPerPinhos)
+    enemies = statistics.mean(deathsPerEnemies)
+    camera = statistics.mean(deathsPerCamera)
+    tpArrows = statistics.mean(tpMissedArrows)
+    dangeArrows = statistics.mean(dangeMissedArrows)
     
     # Escribimos resultados.
     print(f"TIEMPO MEDIO POR SESION: {round(medianT/1000, 2)}s Y VARIANZA: {round(statistics.variance(medianTime), 2)}")
