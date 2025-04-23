@@ -28,13 +28,9 @@ public class GameManager : MonoBehaviour
 
     private CamaraMovement _camMov;
 
-    private bool _menu = true;
-
     private bool _arcade = false;
 
     private Player_Life_Component _myPlayer_Life_Component;
-
-    private Transform _finishLine;
 
     public LevelManager _levelManager;
 
@@ -42,27 +38,23 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
-
     private void Awake()
     {
+        Debug.Log("Inicio de sesion");
+        SessionStartEvent sessionStartEvent = new SessionStartEvent(Tracker.Instance.SessionId);
+        Tracker.Instance.SendEvent(sessionStartEvent);
 
         if (_instance == null)
         {
             _instance = this;
-
-            Debug.Log("Inicio de sesion");
-            SessionStartEvent sessionStartEvent = new SessionStartEvent(Tracker.Instance.SessionId);
-            Tracker.Instance.SendEvent(sessionStartEvent);
-
         }
         else
         {
             Destroy(gameObject);
         }
+
         DontDestroyOnLoad(gameObject);
-
     }
-
 
     public void StartMatch()
     {
@@ -183,16 +175,12 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance.Stop("Arcade");
         AudioManager.Instance.Play("Win");
         UIManager.Instance.SetVictoryMenu(true);
-
     }
-
-
 
     private void OnLevelWasLoaded(int level)  //cada vez que se cargue la escena principal
     {
         if (level != 0)
         {
-            _menu = false;
             _levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
             if (level == 3)
             {
@@ -212,7 +200,6 @@ public class GameManager : MonoBehaviour
                 _Camera = _levelManager._Camera;
                 _enemyDisp = _levelManager._enemyDisp;
                 _enemyMov = _levelManager._enemyMov;
-                _finishLine = _levelManager._finishLine;
                 if (level == 1)
                 {
                     _boss = _levelManager._boss;
@@ -229,9 +216,9 @@ public class GameManager : MonoBehaviour
                 _myPlayer_Life_Component = _player.GetComponent<Player_Life_Component>();
                 UIManager.Instance.UpdateScore(true);
             }
-
         }
     }
+
     public void OnPlayerDefeat()
     {
         if (_arcade) { _Camera.GetComponent<CameraArcade>().enabled = false; }
@@ -246,4 +233,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0.0f;
     }
 
+    private void OnDestroy()
+    {
+        Tracker.Instance.DestroyTracker();
+    }
 }

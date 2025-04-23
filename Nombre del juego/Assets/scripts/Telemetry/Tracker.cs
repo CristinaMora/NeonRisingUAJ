@@ -46,7 +46,7 @@ public class Tracker
     // gestiona las concurrencias que pueda haber
     // https://learn.microsoft.com/en-us/dotnet/api/system.collections.concurrent.concurrentqueue-1?view=net-9.0
     private ConcurrentQueue<Event> eventQueue;
-    // Opcional: Serializacion y persistencia en una hebra independiente de la del videojuego.
+    // Opcional: Serializacion y persistencia en una hebra independiente de la del videojuego
     private Thread eventThread;         // Hilo con bucle que gestiona la cola de eventos
     private bool runningThread = true;  // False para dejar de ejecutar el hilo (Al cerrar el juego)
     private bool flushQueue = false;    // Booleano para que flushee la cola solo cuando queremos
@@ -89,9 +89,7 @@ public class Tracker
         }
 
         InitiateLoop();
-
     }
-
 
     #region Persistencia Local
     /// <summary>
@@ -199,9 +197,9 @@ public class Tracker
     }
     #endregion
 
-    #region Persistencia por servidor web
+    #region Persistencia con Google Sheets + AppScript
     /// <summary>
-    /// Envtio de trazas por servidor web
+    /// Envio de trazas por servidor web a Google Sheets + AppScript
     /// </summary>
     private async void SendEventToWebServer(Event e)
     {
@@ -289,7 +287,6 @@ public class Tracker
         // Despertamos el hilo
         writeSignal.Set();
     }
-
 
     /// <summary>
     /// Mete un elemento en la cola de eventos y si supera un maximo,
@@ -397,7 +394,6 @@ public class Tracker
     }
     #endregion
 
-
     /// <summary>
     /// Metodo para cerrar los archivos y acabar con el bucle del hilo
     /// </summary>
@@ -412,7 +408,6 @@ public class Tracker
         // Inicia la ultima iteracion del bucle del hilo
         writeSignal.Set();
 
-
         // Si el hilo sigue activo
         if (eventThread.IsAlive)  // Espera a que el hilo termine para continuar (Para que no haya problemas al cerrar el juego)
             eventThread.Join(); // Este metodo puede provocar la congelacion del hilo principal, pero como lo vamos a usar al cerrar el juego no deberia dar problemas (Consultar con el grupo)
@@ -420,7 +415,12 @@ public class Tracker
 		// Escribe "]" si es JSON
 		if (format == Format.JSON)
 		{
-			File.AppendAllText(localPath, "]");
-		}
+            // Solo escribir si no existe la llave final
+            string content = File.ReadAllText(localPath).TrimEnd();
+            if (!content.EndsWith("]"))
+            {
+                File.AppendAllText(localPath, "]");
+            }
+        }
 	}
 }
