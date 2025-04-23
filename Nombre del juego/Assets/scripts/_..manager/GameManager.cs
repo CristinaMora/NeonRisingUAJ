@@ -40,14 +40,15 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log("Inicio de sesion");
-        SessionStartEvent sessionStartEvent = new SessionStartEvent(Tracker.Instance.SessionId);
-        Tracker.Instance.SendEvent(sessionStartEvent);
+       
 
         if (_instance == null)
         {
-            _instance = this;
-        }
+            _instance = this; 
+            Debug.Log("Inicio de sesion");
+			SessionStartEvent sessionStartEvent = new SessionStartEvent(Tracker.Instance.SessionId);
+			Tracker.Instance.SendEvent(sessionStartEvent);
+		}
         else
         {
             Destroy(gameObject);
@@ -108,9 +109,9 @@ public class GameManager : MonoBehaviour
         Debug.Log("Fin de la sesion");
         SessionEndEvent sessionEndEvent = new SessionEndEvent(Tracker.Instance.SessionId);
         Tracker.Instance.SendEvent(sessionEndEvent);
-
+		Tracker.Instance.DestroyTracker();
 #if UNITY_EDITOR
-		
+
 		EditorApplication.isPlaying = false;
 #else
         
@@ -235,10 +236,5 @@ public class GameManager : MonoBehaviour
         _bow.SetActive(false);
         _player.SetActive(false);
         Time.timeScale = 0.0f;
-    }
-
-    private void OnDestroy()
-    {
-        Tracker.Instance.DestroyTracker();
     }
 }
