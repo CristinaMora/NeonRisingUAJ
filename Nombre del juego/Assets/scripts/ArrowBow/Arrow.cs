@@ -21,16 +21,12 @@ public class Arrow : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        ArrowShotEvent arrowShotEvent;
         if (collision.gameObject.GetComponent<CameraCollisionDetection>() == false)
         {
             if (!_alreadyHit) 
             {
                 _alreadyHit = true;
 				Debug.Log("Arrow Certera");
-				arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Teleport,
-					transform.position, true);
-				Tracker.Instance.SendEvent(arrowShotEvent);
 			}
 
 			AudioManager.Instance.Play("Teletransporte");
@@ -41,12 +37,7 @@ public class Arrow : MonoBehaviour
         else
         {
             Debug.Log("Arrow Fallida");
-            arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Teleport,
-                transform.position, false);
-			Tracker.Instance.SendEvent(arrowShotEvent);
-		}
-
-     
+		}  
        
     }
         
@@ -60,5 +51,22 @@ public class Arrow : MonoBehaviour
         //rotacion de la flecha
         float angle = Mathf.Atan2(rb.velocity.y, rb.velocity.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+    }
+
+    private void OnDestroy()
+    {
+        ArrowShotEvent arrowShotEvent;
+        if (_alreadyHit)
+        {
+            arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Teleport,
+                transform.position, true);
+            Tracker.Instance.SendEvent(arrowShotEvent);
+        }
+        else
+        {
+            arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Teleport,
+                transform.position, false);
+            Tracker.Instance.SendEvent(arrowShotEvent);
+        }
     }
 }

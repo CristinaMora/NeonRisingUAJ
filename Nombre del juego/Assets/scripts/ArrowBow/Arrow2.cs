@@ -9,6 +9,8 @@ public class Arrow2 : MonoBehaviour
     public int multiplier=2;
     [SerializeField]
     private int Damage;
+    // Para telemetria
+    private bool acertado = false;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -16,7 +18,6 @@ public class Arrow2 : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         AudioManager.Instance.Play("Disparo");
-        ArrowShotEvent arrowShotEvent;
         if (collision.gameObject.GetComponent<CameraFollow>()==false)
         {
             Destroy(this.gameObject);//se elimina la bala al chocar con lo que sea
@@ -24,31 +25,40 @@ public class Arrow2 : MonoBehaviour
             {
                 //Debug.Log("entramos en el trigger");
                 GameManager.Instance.EnemyDamage(Damage, collision.gameObject);
-
-                Debug.Log("Shoot acertado");
-                arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Damage,
-                    transform.position, true);
+                acertado = true;
             }
             else
             {
                 Debug.Log("Shoot fallado");
-                arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Damage,
-                    transform.position, false);
             }
         }
         else
         {
             Debug.Log("Shoot fallado");
-            arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Damage,
-                transform.position, false);
         }
-      
-        Tracker.Instance.SendEvent(arrowShotEvent);
     }
     void Update()
     {
         //rotacion de la flecha
         float angle = Mathf.Atan2(rb.velocity.y, rb.velocity.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+    }
+
+    private void OnDestroy()
+    {
+        ArrowShotEvent arrowShotEvent;
+        if (acertado)
+        {
+            Debug.Log("Shoot acertado");
+            arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Damage,
+                transform.position, true);
+        }
+        else
+        {
+            arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Damage,
+                transform.position, false);
+        }
+
+        Tracker.Instance.SendEvent(arrowShotEvent);
     }
 }
