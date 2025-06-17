@@ -75,7 +75,7 @@ public class Tracker
 
         InitiateLoop();
     }
-
+    // DEBERIA IR EN UNA CLASE PERSISTENCE
     #region Persistencia Local
     /// <summary>
     /// Crea y abre el archivo donde volcar los datos
@@ -124,8 +124,8 @@ public class Tracker
         }
         Debug.Log("Path to telemetry log file: " + localPath);
     }
-    #endregion
-
+    #endregion 
+    // DEBERIA IR EN UNA CLASE PERSISTENCE
     #region Persistencia por servidor con base de datos
     /// <summary>
     /// Posibilidad de iniciar una conexion con un servidor para enviar
@@ -181,7 +181,7 @@ public class Tracker
             });
     }
     #endregion
-
+    // DEBERIA IR EN UNA CLASE PERSISTENCE
     #region Persistencia con Google Sheets + AppScript
     /// <summary>
     /// Envio de trazas por servidor web a Google Sheets + AppScript
@@ -214,7 +214,7 @@ public class Tracker
         }
     }
     #endregion
-
+    // HACERLA CIRCULAR
     #region Gestion de la cola de eventos
     /// <summary>
     /// Inicia el hilo de lectura-escritura con bucle usando el ConcurrentQueue
