@@ -14,7 +14,7 @@ public class DatabasePersistence : Persistence
 {
     private string webhookURL;  // URL del webhook para enviar los eventos a un servidor (Google Sheets)
 
-    public DatabasePersistence(Format _format, string _webhookURL = null) : base(_format)
+    public DatabasePersistence( string _webhookURL = null) : base()
     {
         webhookURL = _webhookURL;
 
