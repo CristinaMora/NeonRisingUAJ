@@ -13,7 +13,7 @@ public class FilePersistence : Persistence
 {
     private string localPath;   // Ruta en donde se guarda el archivo con los datos
 
-    public FilePersistence(PersistenceType _persType, Format _format, string _localPath) : base(_persType, _format)
+    public FilePersistence(Format _format, string _localPath) : base(_format)
     {
         localPath = _localPath;
 

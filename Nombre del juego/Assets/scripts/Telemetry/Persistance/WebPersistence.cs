@@ -10,11 +10,11 @@ using System.Text;
 using UnityEngine;
 using static Tracker;
 
-public class FirebasePersistence : Persistence
+public class WebPersistence : Persistence
 {
     private string webhookURL;  // URL del webhook para enviar los eventos a un servidor (Google Sheets)
 
-    public FirebasePersistence(PersistenceType _persType, Format _format, string _webhookURL = null) : base(_persType, _format)
+    public WebPersistence(Format _format, string _webhookURL = null) : base(_format)
     {
         webhookURL = _webhookURL;
 
@@ -41,43 +41,38 @@ public class FirebasePersistence : Persistence
     }
 
     /// <summary>
-    /// Envia el evento a Firebase
+    /// Envio de trazas por servidor web a Google Sheets + AppScript
     /// </summary>
-    /// <param name="e"></param>
-    public override void SendEvent(Event e)
+    public override async void SendEvent(Event e)
     {
-        // Firebase solo permite envio de datos con formato JSON
         string json = e.ToJSON();
 
-        Debug.Log("Sending event to Firebase: " + json);
+        Debug.Log("Sending event to Google Sheets: " + json);
 
-        DatabaseReference dbRef = FirebaseDatabase.DefaultInstance.RootReference;
+        using HttpClient client = new HttpClient();
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        dbRef.Child("events")
-            .Push()
-            .SetRawJsonValueAsync(json)
-            .ContinueWithOnMainThread(task =>
+        try
+        {
+            HttpResponseMessage response = await client.PostAsync(webhookURL, content);
+
+            if (response.IsSuccessStatusCode)
             {
-                if (task.IsFaulted || task.IsCanceled)
-                {
-                    Debug.LogError("Error sending event to Firebase");
-
-                    if (task.Exception != null)
-                    {
-                        foreach (var innerException in task.Exception.InnerExceptions)
-                        {
-                            Debug.LogError("Firebase error: " + innerException.Message);
-                        }
-                    }
-                }
-                else if (task.IsCompleted)
-                    Debug.Log("Event correctly sent to Firebase");
-            });
+                Debug.Log("Event correctly sent to Google Sheets");
+            }
+            else
+            {
+                Debug.LogError("Error sending event to Google Sheets: " + response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("Exception sending event to Google Sheets: " + ex.Message);
+        }
     }
 
-
     /// <summary>
-    /// Saca de la cola de eventos y los envia a la base de datos de Firebase
+    /// Saca de la cola de eventos y los envia al servidor web
     /// </summary>
     public override void FlushQueue(ConcurrentQueue<Event> eventQueue)
     {
@@ -86,6 +81,5 @@ public class FirebasePersistence : Persistence
             if (e != null)
                 SendEvent(e);
         }
-
     }
 }

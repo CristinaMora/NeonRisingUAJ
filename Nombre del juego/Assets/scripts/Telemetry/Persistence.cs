@@ -13,12 +13,10 @@ using static Tracker;
 public class Persistence
 {
     protected Format format;              // Formato de escritura de los eventos
-    protected PersistenceType persType;   // Tipo de persistencia de los eventos
 
 
-    public Persistence(PersistenceType _persType, Format _format)
+    public Persistence(Format _format)
     {
-        persType = _persType;
         format = _format;
     }
 

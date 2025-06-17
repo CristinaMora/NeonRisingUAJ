@@ -54,19 +54,31 @@ public class Tracker
         _instance = this;
 
         eventQueue = new ConcurrentQueue<Event>();
-		sessionId = Guid.NewGuid().ToString();
+        sessionId = Guid.NewGuid().ToString();
         format = ConfigManager.GetFormat();
         persType = ConfigManager.GetPersistenceType();
         EVENTS_TO_WRITE_SIZE = ConfigManager.GetEventsToWriteSize();
         webhookURL = ConfigManager.GetWebhookURL();
 
         // Creacion del persistance object
-        persistenceObject = new Persistence(persType, format, localPath, webhookURL);
-		Debug.Log("Inicio de sesion");
-		SessionStartEvent sessionStartEvent = new SessionStartEvent();
-		Tracker.Instance.SendEvent(sessionStartEvent);
+        switch (persType)
+        {
+            case PersistenceType.LOCAL:
+                persistenceObject = new FilePersistence(format, localPath);
+                break;
+            case PersistenceType.DATABASE:
+                persistenceObject = new DatabasePersistence(format, webhookURL);
+                break;
+            case PersistenceType.WEBSERVER:
+                persistenceObject = new WebPersistence(format, webhookURL);
+                break;
+        }
 
-		InitiateLoop();
+        Debug.Log("Inicio de sesion");
+        SessionStartEvent sessionStartEvent = new SessionStartEvent();
+        Tracker.Instance.SendEvent(sessionStartEvent);
+
+        InitiateLoop();
     }
 
     // HACERLA CIRCULAR
@@ -96,20 +108,7 @@ public class Tracker
                 Debug.Log("Estado del hilo: " + eventThread.ThreadState);
                 writeSignal.WaitOne(); // Espera que se le indique que guarde
 
-                switch (persType)
-                {
-                    case PersistenceType.LOCAL:
-                        persistenceObject.FlushQueueToFile(eventQueue);
-                        break;
-                    case PersistenceType.DATABASE:
-                        persistenceObject.FlushQueueToFirebase(eventQueue);
-                        break;
-                    case PersistenceType.WEBSERVER:
-                        persistenceObject.FlushQueueToWebServer(eventQueue);
-                        break;
-                    default:
-                        break;
-                }
+                persistenceObject.FlushQueue(eventQueue);
 
                 if (flushQueue) flushQueue = false;
             }
@@ -149,17 +148,17 @@ public class Tracker
         }
     }
 
-    
+
 
     /// <summary>
     /// Metodo para cerrar los archivos y acabar con el bucle del hilo
     /// </summary>
     public void DestroyTracker()
     {
-		SessionEndEvent sessionEndEvent = new SessionEndEvent();
-		SendEvent(sessionEndEvent);
-		// Vuelca lo que queda de la cola en JSON
-		FlushQueue();
+        SessionEndEvent sessionEndEvent = new SessionEndEvent();
+        SendEvent(sessionEndEvent);
+        // Vuelca lo que queda de la cola en JSON
+        FlushQueue();
 
         // Para el bucle del hilo
         runningThread = false;
@@ -188,5 +187,5 @@ public class Tracker
                 }
                 break;
         }
-	}
+    }
 }
