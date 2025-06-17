@@ -59,6 +59,6 @@ public class Arrow2 : MonoBehaviour
                 transform.position, false);
         }
 
-        Tracker.Instance.SendEvent(arrowShotEvent);
+        Tracker.Instance.TrackEvent(arrowShotEvent);
     }
 }
