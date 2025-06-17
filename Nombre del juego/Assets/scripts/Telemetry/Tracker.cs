@@ -56,7 +56,7 @@ public class Tracker
         _instance = this;
 
         eventQueue = new ConcurrentQueue<Event>();
-        sessionId = Guid.NewGuid().ToString();
+		sessionId = Guid.NewGuid().ToString();
         format = ConfigManager.GetFormat();
         persType = ConfigManager.GetPersistenceType();
         EVENTS_TO_WRITE_SIZE = ConfigManager.GetEventsToWriteSize();
@@ -72,8 +72,11 @@ public class Tracker
                 break;
             default: break;
         }
+		Debug.Log("Inicio de sesion");
+		SessionStartEvent sessionStartEvent = new SessionStartEvent();
+		Tracker.Instance.SendEvent(sessionStartEvent);
 
-        InitiateLoop();
+		InitiateLoop();
     }
     // DEBERIA IR EN UNA CLASE PERSISTENCE
     #region Persistencia Local
@@ -381,8 +384,10 @@ public class Tracker
     /// </summary>
     public void DestroyTracker()
     {
-        // Vuelca lo que queda de la cola en JSON
-        FlushQueue();
+		SessionEndEvent sessionEndEvent = new SessionEndEvent();
+		SendEvent(sessionEndEvent);
+		// Vuelca lo que queda de la cola en JSON
+		FlushQueue();
 
         // Para el bucle del hilo
         runningThread = false;
