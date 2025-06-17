@@ -54,7 +54,7 @@ public class Tracker
         _instance = this;
 
         eventQueue = new ConcurrentQueue<Event>();
-        sessionId = Guid.NewGuid().ToString();
+		sessionId = Guid.NewGuid().ToString();
         format = ConfigManager.GetFormat();
         persType = ConfigManager.GetPersistenceType();
         EVENTS_TO_WRITE_SIZE = ConfigManager.GetEventsToWriteSize();
@@ -62,12 +62,15 @@ public class Tracker
 
         // Creacion del persistance object
         persistenceObject = new Persistence(persType, format, localPath, webhookURL);
+		Debug.Log("Inicio de sesion");
+		SessionStartEvent sessionStartEvent = new SessionStartEvent();
+		Tracker.Instance.SendEvent(sessionStartEvent);
 
-        InitiateLoop();
+		InitiateLoop();
     }
 
     // HACERLA CIRCULAR
-    #region Gestion de la cola de eventos
+    // Gestion de la cola de eventos
     /// <summary>
     /// Inicia el hilo de lectura-escritura con bucle usando el ConcurrentQueue
     /// </summary>
@@ -153,8 +156,10 @@ public class Tracker
     /// </summary>
     public void DestroyTracker()
     {
-        // Vuelca lo que queda de la cola en JSON
-        FlushQueue();
+		SessionEndEvent sessionEndEvent = new SessionEndEvent();
+		SendEvent(sessionEndEvent);
+		// Vuelca lo que queda de la cola en JSON
+		FlushQueue();
 
         // Para el bucle del hilo
         runningThread = false;

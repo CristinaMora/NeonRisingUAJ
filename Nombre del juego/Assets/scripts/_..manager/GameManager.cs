@@ -46,9 +46,6 @@ public class GameManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this; 
-            Debug.Log("Inicio de sesion");
-			SessionStartEvent sessionStartEvent = new SessionStartEvent();
-			Tracker.Instance.SendEvent(sessionStartEvent);
 		}
         else
         {
@@ -110,9 +107,7 @@ public class GameManager : MonoBehaviour
     }
     public void QuitGame()
     {
-        Debug.Log("Fin de la sesion");
-        SessionEndEvent sessionEndEvent = new SessionEndEvent();
-        Tracker.Instance.SendEvent(sessionEndEvent);
+       
 
         Tracker.Instance.DestroyTracker();
 
