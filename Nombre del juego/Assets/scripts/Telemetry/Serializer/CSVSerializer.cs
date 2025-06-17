@@ -11,9 +11,21 @@ public class CSVSerializer : ISerializer
         return e.ToCSV();
     }
 
-    public void AppendSerializedData(StringBuilder batch, string data, bool isFirst)
+    public void AppendSerializedData(StringBuilder batch, string data, ref bool isFirst)
     {
-        Debug.Log("Append CSV")
+        Debug.Log("Append CSV");
         batch.AppendLine(data);
     }
+
+    public string localPathExtension() { return ".csv"; }
+
+    public string initFile()
+    {
+        //Para CSV no tiene porqué hacer nada al principio
+        return "";
+    }
+
+    public bool changeOfSesion(ref string content, int lastbracket) { return false; }
+
+    public string endFile() { return ""; }
 }

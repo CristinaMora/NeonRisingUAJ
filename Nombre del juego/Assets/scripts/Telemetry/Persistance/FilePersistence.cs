@@ -6,12 +6,11 @@ using static Tracker;
 public class FilePersistence : Persistence
 {
     private string localPath;   // Ruta en donde se guarda el archivo con los datos
-    ISerializer serializer;
-	private Format format; // Formato al que se escriben los eventos
-
-    public FilePersistence(Format _format) : base()
+    private ISerializer serializer; // Formato de los eventos
+	
+    public FilePersistence(ISerializer _format) : base()
     {
-		format = _format;
+		serializer = _format;
 
         CreateLocalLogFile();
     }
@@ -38,34 +37,35 @@ public class FilePersistence : Persistence
 				if (e != null)
 				{
 					string data;
-					switch (format)
-					{
-						case Format.JSON:
-							data = e.ToJSON();
-							break;
-						case Format.CSV:
-							data = e.ToCSV();
-							break;
-						default:
-							throw new ArgumentOutOfRangeException(nameof(format), format, null);
-					}
+					//switch (format)
+					//{
+					//	case Format.JSON:
+					//		data = e.ToJSON();
+					//		break;
+					//	case Format.CSV:
+					//		data = e.ToCSV();
+					//		break;
+					//	default:
+					//		throw new ArgumentOutOfRangeException(nameof(format), format, null);
+					//}
 
                     ///Ahora mismo no est� cubierta la excepci�n de formato no encontrado
                     data = serializer.Serialize(e); //Serializamos el evento
-                    serializer.AppendSerializedData(batch, data, isFirst);  //Escribimos el evento siguiendo el formato
+                    serializer.AppendSerializedData(batch, data, ref isFirst);  //Escribimos el evento siguiendo el formato
+                    
 
-					if (format == Format.JSON)
-					{
-						// En caso de no ser el primero, necesita una coma delante.
-						if (!isFirst)
-							batch.Append(",\n");
-						batch.Append(data);
-						isFirst = false;
-					}
-					else
-					{
-						batch.AppendLine(data);
-					}
+					//if (format == Format.JSON)
+					//{
+					//	// En caso de no ser el primero, necesita una coma delante.
+					//	if (!isFirst)
+					//		batch.Append(",\n");
+					//	batch.Append(data);
+					//	isFirst = false;
+					//}
+					//else
+					//{
+					//	batch.AppendLine(data);
+					//}
 				}
 				i++;
 			}
@@ -104,46 +104,37 @@ public class FilePersistence : Persistence
     {
         try
         {
-            localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename();
+            localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename() + serializer.localPathExtension();
             // Para cada formato a�adimos la extensi�n correspondiente.
-            switch (format)
+
+            // Si no existe el archivo, lo creamos y escribimos el inicio según el formato
+            if (!File.Exists(localPath))
             {
-                case Format.CSV:
-                    localPath += ".csv";
-                    break;
-                case Format.JSON:
-                    localPath += ".json";
-
-                    // Si no existe el archivo, lo creamos y escribimos el inicio del JSON
-                    if (!File.Exists(localPath))
-                    {
-                        // No existe: lo creamos y escribimos [
-                        File.WriteAllText(localPath, "[\n");
-                    }
-                    else
-                    {
-                        string content = File.ReadAllText(localPath).TrimEnd();
-
-                        // Existe pero est� vac�o
-                        if (string.IsNullOrWhiteSpace(content))
-                        {
-                            File.WriteAllText(localPath, "[\n");
-                        }
-                        else
-                        {
-
-                            // Quitamos el cierre, la coma se escribir� luego, pero vamos a introducir un salto de l�nea para diferenciar entre sesiones.
-                            int lastBracketIndex = content.LastIndexOf(']');
-                            if (lastBracketIndex != -1)
-                            {
-                                content = content.Substring(0, lastBracketIndex).TrimEnd();
-                                File.WriteAllText(localPath, content + "\n");
-                            }
-                        }
-                    }
-                    break;
-                default: break;
+                // No existe
+                File.WriteAllText(localPath, serializer.initFile());
             }
+            // Existe
+            else
+            {
+                string content = File.ReadAllText(localPath).TrimEnd();
+
+                // Existe pero esta vacio
+                if (string.IsNullOrWhiteSpace(content))
+                {
+                    //Escribimos el inicio
+                    File.WriteAllText(localPath, serializer.initFile());
+                }
+                //Existe y tiene texto
+                else 
+                {
+                    int lastBracketIndex = 0;
+                    if (serializer.changeOfSesion(ref content, lastBracketIndex))
+                    {
+                        File.WriteAllText(localPath, content + "\n");
+                    }
+                }
+            }
+
             Debug.Log("Path to telemetry log file: " + localPath);
         }
         catch (Exception ex)

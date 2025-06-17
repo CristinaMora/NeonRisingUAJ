@@ -36,6 +36,7 @@ public class Tracker
     // HashSet<Event> disabledEvents = new HashSet<Event>();
 
     private Persistence persistenceObject;
+    private ISerializer serializeFormat;
 
     static private Tracker _instance;   // Acceso privado al singleton
     static public Tracker Instance      // Acceso publico al singleton
@@ -59,12 +60,26 @@ public class Tracker
 
 		eventQueue = new CircularQueue<Event>(ConfigManager.GetEventsToWriteSize());
 
-		// Creacion del persistance object
-		switch (persType)
+        //AQUI
+        // Creation of the Serializer
+        switch (format)
         {
+            case Format.JSON:
+                serializeFormat = new JsonSerializer();
+                break;
+            case Format.CSV:
+                serializeFormat = new CSVSerializer();
+                break;
+        }
+
+        // Creacion del persistance object
+        switch (persType)
+        {
+
             case PersistenceType.LOCAL:
               
-                persistenceObject = new FilePersistence(format);
+                //AQUI
+                persistenceObject = new FilePersistence(serializeFormat);
                 break;
             case PersistenceType.DATABASE:
                 persistenceObject = new DatabasePersistence(webhookURL);
@@ -173,13 +188,14 @@ public class Tracker
         //Este switch aquí no debe estar
         switch (persType)
         {
+            //AQUI
             case PersistenceType.LOCAL:
                 switch (format)
                 {
                     // Escribe "]" si es JSON
                     case Format.JSON:
 						// Solo escribir si no existe la llave final
-						Debug.Log(localPath);
+						Debug.Log("Final: " + localPath);
 						string content = File.ReadAllText(Application.dataPath + "/" + ConfigManager.GetLogFilename() + ".json").TrimEnd();
                         if (!content.EndsWith("]"))
                         {

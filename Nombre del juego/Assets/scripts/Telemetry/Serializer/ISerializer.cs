@@ -6,5 +6,13 @@ public interface ISerializer
 {
 
     string Serialize(Event e);
-    public void AppendSerializedData(StringBuilder batch, string data, bool isFirst);
+    void AppendSerializedData(StringBuilder batch, string data, ref bool isFirst);
+
+    string localPathExtension();
+
+    string initFile();
+
+    bool changeOfSesion(ref string content, int lastbracket);
+
+    string endFile();
 }
