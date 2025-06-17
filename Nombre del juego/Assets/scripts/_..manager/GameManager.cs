@@ -65,7 +65,7 @@ public class GameManager : MonoBehaviour
         gameId = Guid.NewGuid().ToString();
 
 		GameStartEvent gameStartEvent = new GameStartEvent(gameId);
-        Tracker.Instance.SendEvent(gameStartEvent);
+        Tracker.Instance.TrackEvent(gameStartEvent);
 
         SceneManager.LoadScene("SampleScene");
         AudioManager.Instance.Stop("Menu");
@@ -94,7 +94,7 @@ public class GameManager : MonoBehaviour
     {
 		Debug.Log("Fin partida");
 		GameEndEvent gameEndEvent = new GameEndEvent(gameId);
-		Tracker.Instance.SendEvent(gameEndEvent);
+		Tracker.Instance.TrackEvent(gameEndEvent);
 
 		SceneManager.LoadScene("Main Menu");
         AudioManager.Instance.Stop("Win");
@@ -128,7 +128,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Fin partida");
         GameEndEvent gameEndEvent = new GameEndEvent(GameManager.Instance.gameId);
-        Tracker.Instance.SendEvent(gameEndEvent);
+        Tracker.Instance.TrackEvent(gameEndEvent);
 
         Player_Life_Component.instance.isAlive = false;
         _bow.SetActive(false);
@@ -172,10 +172,10 @@ public class GameManager : MonoBehaviour
     {
 
 		PlayerWinsEvent playerWinsEvent = new PlayerWinsEvent(GameManager.Instance.gameId);
-		Tracker.Instance.SendEvent(playerWinsEvent);
+		Tracker.Instance.TrackEvent(playerWinsEvent);
 
 		GameEndEvent gameEndEvent = new GameEndEvent(GameManager.Instance.gameId);
-		Tracker.Instance.SendEvent(gameEndEvent);
+		Tracker.Instance.TrackEvent(gameEndEvent);
 	
 		Time.timeScale = 0.0f;
         _bow.SetActive(false);

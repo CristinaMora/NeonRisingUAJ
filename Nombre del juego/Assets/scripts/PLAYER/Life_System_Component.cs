@@ -32,7 +32,7 @@ public class Life_System_Component : MonoBehaviour
         {
             PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(GameManager.Instance.gameId, transform.position,
                 DeathCause.Enemy);
-            Tracker.Instance.SendEvent(playerDiesEvent);
+            Tracker.Instance.TrackEvent(playerDiesEvent);
             GameManager.Instance.PlayerDies();
         }
         else if (this.gameObject.GetComponent<BossMovement_Component>())

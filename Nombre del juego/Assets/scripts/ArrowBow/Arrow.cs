@@ -60,13 +60,13 @@ public class Arrow : MonoBehaviour
         {
             arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Teleport,
                 transform.position, true);
-            Tracker.Instance.SendEvent(arrowShotEvent);
+            Tracker.Instance.TrackEvent(arrowShotEvent);
         }
         else
         {
             arrowShotEvent = new ArrowShotEvent(GameManager.Instance.gameId, ArrowShotEvent.ArrowType.Teleport,
                 transform.position, false);
-            Tracker.Instance.SendEvent(arrowShotEvent);
+            Tracker.Instance.TrackEvent(arrowShotEvent);
         }
     }
 }

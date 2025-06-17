@@ -57,13 +57,13 @@ public class Tracker
         EVENTS_TO_WRITE_SIZE = ConfigManager.GetEventsToWriteSize();
         webhookURL = ConfigManager.GetWebhookURL();
 
-		eventQueue = new CircularQueue<Event>(ConfigManager.GetEventsToWriteSize());
+        eventQueue = new CircularQueue<Event>(ConfigManager.GetEventsToWriteSize());
 
-		// Creacion del persistance object
-		switch (persType)
+        // Creacion del persistance object
+        switch (persType)
         {
             case PersistenceType.LOCAL:
-              
+
                 persistenceObject = new FilePersistence(format);
                 break;
             case PersistenceType.DATABASE:
@@ -75,8 +75,8 @@ public class Tracker
         }
 
         SessionStartEvent sessionStartEvent = new SessionStartEvent();
-        SendEvent(sessionStartEvent);
-		InitiateLoop();
+        TrackEvent(sessionStartEvent);
+        InitiateLoop();
     }
 
     // HACERLA CIRCULAR
@@ -107,24 +107,13 @@ public class Tracker
                 writeSignal.WaitOne(); // Espera que se le indique que guarde
 
                 persistenceObject.FlushQueue(eventQueue);
-
-                if (flushQueue) flushQueue = false;
             }
+            Debug.Log("Final del hilo");
         }
         catch (Exception e)
         {
             Debug.LogError("EXCEPCION en el hilo: " + e.Message);
         }
-    }
-    /// <summary>
-    /// Metodo que activa el mecanismo para volcar la cola entera en el JSON
-    /// </summary>
-    public void FlushQueue()
-    {
-        // Booleano para indicar que queremos volcar la cola
-        flushQueue = true;
-        // Despertamos el hilo
-        writeSignal.Set();
     }
 
     /// <summary>
@@ -132,21 +121,17 @@ public class Tracker
     /// hace flush dependiendo del tipo de persistencia
     /// </summary>
     /// <param name="e">Evento a meter a la cola.</param> 
-    public void SendEvent(Event e)
+    public void TrackEvent(Event e)
     {
         eventQueue.Push(e);
 
         // Si es en local, si supera un maximo escribe o si es servidor, envia directamente
-        if ((persType == PersistenceType.LOCAL && eventQueue.Count >= EVENTS_TO_WRITE_SIZE) ||
-            ((persType == PersistenceType.DATABASE || persType == PersistenceType.WEBSERVER) &&
-            eventQueue.Count >= 1))
+        if (eventQueue.Count >= EVENTS_TO_WRITE_SIZE)
         {
             // Despertamos el hilo
             writeSignal.Set();
         }
     }
-
-
 
     /// <summary>
     /// Metodo para cerrar los archivos y acabar con el bucle del hilo
@@ -154,9 +139,7 @@ public class Tracker
     public void DestroyTracker()
     {
         SessionEndEvent sessionEndEvent = new SessionEndEvent();
-        SendEvent(sessionEndEvent);
-        // Vuelca lo que queda de la cola en JSON
-        FlushQueue();
+        TrackEvent(sessionEndEvent);
 
         // Para el bucle del hilo
         runningThread = false;
@@ -169,24 +152,13 @@ public class Tracker
             eventThread.Join();
 
 
-        //Este switch aquí no debe estar
-        switch (persType)
-        {
-            case PersistenceType.LOCAL:
-                switch (format)
-                {
-                    // Escribe "]" si es JSON
-                    case Format.JSON:
-						// Solo escribir si no existe la llave final
-						Debug.Log(localPath);
-						string content = File.ReadAllText(Application.dataPath + "/" + ConfigManager.GetLogFilename() + ".json").TrimEnd();
-                        if (!content.EndsWith("]"))
-                        {
-                            File.AppendAllText(Application.dataPath + "/" + ConfigManager.GetLogFilename() + ".json", "]");
-                        }
-                        break;
-                }
-                break;
-        }
+        //// Escribe "]" si es JSON
+        //// Solo escribir si no existe la llave final
+        //Debug.Log(localPath);
+        //string content = File.ReadAllText(Application.dataPath + "/" + ConfigManager.GetLogFilename() + ".json").TrimEnd();
+        //if (!content.EndsWith("]"))
+        //{
+        //    File.AppendAllText(Application.dataPath + "/" + ConfigManager.GetLogFilename() + ".json", "]");
+        //}
     }
 }

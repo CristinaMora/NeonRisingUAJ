@@ -22,7 +22,7 @@ public class Spike_Platform_Component : MonoBehaviour
         {
             PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(GameManager.Instance.gameId, collision.gameObject.transform.position,
                 DeathCause.Spikes);
-            Tracker.Instance.SendEvent(playerDiesEvent);
+            Tracker.Instance.TrackEvent(playerDiesEvent);
 
             //Llamada al Game Manager correspondiente
             //collision.gameObject.GetComponent<Player_Life_Component>().gameObject.SetActive(false);// por ahora se queda asi
