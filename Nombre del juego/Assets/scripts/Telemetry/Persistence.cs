@@ -12,13 +12,8 @@ using static Tracker;
 
 public class Persistence
 {
-    protected Format format;              // Formato de escritura de los eventos
-
-
-    public Persistence(Format _format)
-    {
-        format = _format;
-    }
+    public Persistence()
+    {}
 
     // --- SEND EVENT ---
     public virtual async void SendEvent(Event e) { }

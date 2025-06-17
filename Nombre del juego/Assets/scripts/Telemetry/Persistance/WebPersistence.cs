@@ -14,7 +14,7 @@ public class WebPersistence : Persistence
 {
     private string webhookURL;  // URL del webhook para enviar los eventos a un servidor (Google Sheets)
 
-    public WebPersistence(Format _format, string _webhookURL = null) : base(_format)
+    public WebPersistence(string _webhookURL = null) : base()
     {
         webhookURL = _webhookURL;
 

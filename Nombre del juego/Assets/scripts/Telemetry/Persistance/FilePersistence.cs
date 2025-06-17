@@ -6,69 +6,15 @@ using static Tracker;
 public class FilePersistence : Persistence
 {
     private string localPath;   // Ruta en donde se guarda el archivo con los datos
+	private Format format; // Formato al que se escriben los eventos
 
-    public FilePersistence(Format _format, string _localPath) : base(_format)
+    public FilePersistence(Format _format) : base()
     {
-        localPath = _localPath;
+		format = _format;
 
         CreateLocalLogFile();
     }
 
-    /// <summary>
-    /// Crea y abre el archivo donde volcar los datos
-    /// </summary>
-    private void CreateLocalLogFile()
-    {
-        try
-        {
-			localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename();
-			// Para cada formato añadimos la extensión correspondiente.
-			switch (format)
-			{
-				case Format.CSV:
-					localPath += ".csv";
-					break;
-				case Format.JSON:
-					localPath += ".json";
-
-					// Si no existe el archivo, lo creamos y escribimos el inicio del JSON
-					if (!File.Exists(localPath))
-					{
-						// No existe: lo creamos y escribimos [
-						File.WriteAllText(localPath, "[\n");
-					}
-					else
-					{
-						string content = File.ReadAllText(localPath).TrimEnd();
-
-						// Existe pero está vacío
-						if (string.IsNullOrWhiteSpace(content))
-						{
-							File.WriteAllText(localPath, "[\n");
-						}
-						else
-						{
-
-							// Quitamos el cierre, la coma se escribirá luego, pero vamos a introducir un salto de línea para diferenciar entre sesiones.
-							int lastBracketIndex = content.LastIndexOf(']');
-							if (lastBracketIndex != -1)
-							{
-								content = content.Substring(0, lastBracketIndex).TrimEnd();
-								File.WriteAllText(localPath, content + "\n");
-							}
-						}
-					}
-					break;
-				default: break;
-			}
-			Debug.Log("Path to telemetry log file: " + localPath);
-		}
-        catch (Exception ex)
-        {
-			Debug.LogError($"[FilePersistence] There was an error while opening the file: {ex.Message}");
-		}
-      
-    }
 
     /// <summary>
     /// Saca de la cola cuando se superen cierto elementos y escribe en el archivo en el formato
@@ -126,6 +72,7 @@ public class FilePersistence : Persistence
 		}
         
     }
+
     private bool IsFirstJsonEntry()
     {
 		try
@@ -140,5 +87,62 @@ public class FilePersistence : Persistence
 		{
 			throw new InvalidOperationException("Critical error: Unable to read JSON log file.", ex);
 		}
+    }
+
+
+    /// <summary>
+    /// Crea y abre el archivo donde volcar los datos
+    /// </summary>
+    private void CreateLocalLogFile()
+    {
+        try
+        {
+            localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename();
+            // Para cada formato añadimos la extensión correspondiente.
+            switch (format)
+            {
+                case Format.CSV:
+                    localPath += ".csv";
+                    break;
+                case Format.JSON:
+                    localPath += ".json";
+
+                    // Si no existe el archivo, lo creamos y escribimos el inicio del JSON
+                    if (!File.Exists(localPath))
+                    {
+                        // No existe: lo creamos y escribimos [
+                        File.WriteAllText(localPath, "[\n");
+                    }
+                    else
+                    {
+                        string content = File.ReadAllText(localPath).TrimEnd();
+
+                        // Existe pero está vacío
+                        if (string.IsNullOrWhiteSpace(content))
+                        {
+                            File.WriteAllText(localPath, "[\n");
+                        }
+                        else
+                        {
+
+                            // Quitamos el cierre, la coma se escribirá luego, pero vamos a introducir un salto de línea para diferenciar entre sesiones.
+                            int lastBracketIndex = content.LastIndexOf(']');
+                            if (lastBracketIndex != -1)
+                            {
+                                content = content.Substring(0, lastBracketIndex).TrimEnd();
+                                File.WriteAllText(localPath, content + "\n");
+                            }
+                        }
+                    }
+                    break;
+                default: break;
+            }
+            Debug.Log("Path to telemetry log file: " + localPath);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FilePersistence] There was an error while opening the file: {ex.Message}");
+        }
+
     }
 }

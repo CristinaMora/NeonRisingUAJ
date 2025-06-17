@@ -64,13 +64,13 @@ public class Tracker
         {
             case PersistenceType.LOCAL:
               
-                persistenceObject = new FilePersistence(format, localPath);
+                persistenceObject = new FilePersistence(format);
                 break;
             case PersistenceType.DATABASE:
-                persistenceObject = new DatabasePersistence(format, webhookURL);
+                persistenceObject = new DatabasePersistence(webhookURL);
                 break;
             case PersistenceType.WEBSERVER:
-                persistenceObject = new WebPersistence(format, webhookURL);
+                persistenceObject = new WebPersistence(webhookURL);
                 break;
         }
 
