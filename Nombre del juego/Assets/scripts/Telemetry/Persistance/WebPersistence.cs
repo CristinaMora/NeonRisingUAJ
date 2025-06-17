@@ -43,6 +43,7 @@ public class WebPersistence : Persistence
     /// <summary>
     /// Envio de trazas por servidor web a Google Sheets + AppScript
     /// </summary>
+    /// AQUI
     public override async void SendEvent(Event e)
     {
         string json = e.ToJSON();

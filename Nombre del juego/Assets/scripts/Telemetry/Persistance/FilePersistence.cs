@@ -12,6 +12,7 @@ using static Tracker;
 public class FilePersistence : Persistence
 {
     private string localPath;   // Ruta en donde se guarda el archivo con los datos
+    ISerializer serializer;
 
     public FilePersistence(Format _format, string _localPath) : base(_format)
     {
@@ -72,6 +73,8 @@ public class FilePersistence : Persistence
     /// Saca de la cola cuando se superen cierto elementos y escribe en el archivo en el formato
     /// (+ si se mete por tiempo)
     /// </summary>
+    /// 
+    //AQUI
     public override void FlushQueue(CircularQueue<Event> eventQueue)
     {
         int i = 0;
@@ -84,30 +87,34 @@ public class FilePersistence : Persistence
             if (e != null)
             {
                 string data;
-                switch (format)
-                {
-                    case Format.JSON:
-                        data = e.ToJSON();
-                        break;
-                    case Format.CSV:
-                        data = e.ToCSV();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(format), format, null);
-                }
+                //switch (format)
+                //{
+                //    case Format.JSON:
+                //        data = e.ToJSON();
+                //        break;
+                //    case Format.CSV:
+                //        data = e.ToCSV();
+                //        break;
+                //    default:
+                //        throw new ArgumentOutOfRangeException(nameof(format), format, null);
+                //}
 
-                if (format == Format.JSON)
-                {
-                    // En caso de no ser el primero, necesita una coma delante.
-                    if (!isFirst)
-                        batch.Append(",\n");
-                    batch.Append(data);
-                    isFirst = false;
-                }
-                else
-                {
-                    batch.AppendLine(data);
-                }
+                ///Ahora mismo no está cubierta la excepción de formato no encontrado
+                data = serializer.Serialize(e); //Serializamos el evento
+                serializer.AppendSerializedData(batch, data, isFirst);  //Escribimos el evento siguiendo el formato
+
+                //if (format == Format.JSON)
+                //{
+                //    // En caso de no ser el primero, necesita una coma delante.
+                //    if (!isFirst)
+                //        batch.Append(",\n");
+                //    batch.Append(data);
+                //    isFirst = false;
+                //}
+                //else
+                //{
+                //    batch.AppendLine(data);
+                //}
             }
             i++;
         }

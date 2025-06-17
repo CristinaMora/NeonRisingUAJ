@@ -106,6 +106,7 @@ public class Tracker
                 Debug.Log("Estado del hilo: " + eventThread.ThreadState);
                 writeSignal.WaitOne(); // Espera que se le indique que guarde
 
+
                 persistenceObject.FlushQueue(eventQueue);
 
                 if (flushQueue) flushQueue = false;
