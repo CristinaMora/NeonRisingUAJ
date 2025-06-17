@@ -24,10 +24,7 @@ public class Tracker
     Format format;              // Formato de escritura de los eventos
     PersistenceType persType;   // Tipo de persistencia de los eventos
 
-    // ConcurrentQueue es thread-safe lo que indica que si creamos un hilo aparte
-    // gestiona las concurrencias que pueda haber
-    // https://learn.microsoft.com/en-us/dotnet/api/system.collections.concurrent.concurrentqueue-1?view=net-9.0
-    private ConcurrentQueue<Event> eventQueue;
+    private CircularQueue<Event> eventQueue;
     // Opcional: Serializacion y persistencia en una hebra independiente de la del videojuego
     private Thread eventThread;                                     // Hilo con bucle que gestiona la cola de eventos
     private volatile bool runningThread = true;                     // False para dejar de ejecutar el hilo (Al cerrar el juego)
@@ -53,17 +50,20 @@ public class Tracker
     {
         _instance = this;
 
-        eventQueue = new ConcurrentQueue<Event>();
+
         sessionId = Guid.NewGuid().ToString();
         format = ConfigManager.GetFormat();
         persType = ConfigManager.GetPersistenceType();
         EVENTS_TO_WRITE_SIZE = ConfigManager.GetEventsToWriteSize();
         webhookURL = ConfigManager.GetWebhookURL();
 
-        // Creacion del persistance object
-        switch (persType)
+		eventQueue = new CircularQueue<Event>(ConfigManager.GetEventsToWriteSize());
+
+		// Creacion del persistance object
+		switch (persType)
         {
             case PersistenceType.LOCAL:
+              
                 persistenceObject = new FilePersistence(format, localPath);
                 break;
             case PersistenceType.DATABASE:
@@ -74,11 +74,9 @@ public class Tracker
                 break;
         }
 
-        Debug.Log("Inicio de sesion");
         SessionStartEvent sessionStartEvent = new SessionStartEvent();
-        Tracker.Instance.SendEvent(sessionStartEvent);
-
-        InitiateLoop();
+        SendEvent(sessionStartEvent);
+		InitiateLoop();
     }
 
     // HACERLA CIRCULAR
@@ -136,7 +134,7 @@ public class Tracker
     /// <param name="e">Evento a meter a la cola.</param> 
     public void SendEvent(Event e)
     {
-        eventQueue.Enqueue(e);
+        eventQueue.Push(e);
 
         // Si es en local, si supera un maximo escribe o si es servidor, envia directamente
         if ((persType == PersistenceType.LOCAL && eventQueue.Count >= EVENTS_TO_WRITE_SIZE) ||
@@ -170,6 +168,8 @@ public class Tracker
         if (eventThread != null && eventThread.IsAlive)  // Espera a que el hilo termine para continuar
             eventThread.Join();
 
+
+        //Este switch aquí no debe estar
         switch (persType)
         {
             case PersistenceType.LOCAL:
@@ -177,11 +177,12 @@ public class Tracker
                 {
                     // Escribe "]" si es JSON
                     case Format.JSON:
-                        // Solo escribir si no existe la llave final
-                        string content = File.ReadAllText(localPath).TrimEnd();
+						// Solo escribir si no existe la llave final
+						Debug.Log(localPath);
+						string content = File.ReadAllText(Application.dataPath + "/" + ConfigManager.GetLogFilename() + ".json").TrimEnd();
                         if (!content.EndsWith("]"))
                         {
-                            File.AppendAllText(localPath, "]");
+                            File.AppendAllText(Application.dataPath + "/" + ConfigManager.GetLogFilename() + ".json", "]");
                         }
                         break;
                 }

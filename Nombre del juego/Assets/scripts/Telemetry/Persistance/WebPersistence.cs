@@ -74,7 +74,7 @@ public class WebPersistence : Persistence
     /// <summary>
     /// Saca de la cola de eventos y los envia al servidor web
     /// </summary>
-    public override void FlushQueue(ConcurrentQueue<Event> eventQueue)
+    public override void FlushQueue(CircularQueue<Event> eventQueue)
     {
         while (eventQueue.TryDequeue(out Event e))
         {

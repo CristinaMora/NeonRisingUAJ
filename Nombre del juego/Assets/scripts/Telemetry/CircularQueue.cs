@@ -2,7 +2,7 @@
 using UnityEngine;
 public class CircularQueue<T>
 {
-	private readonly T[] data;
+	private T[] data;
 	private int readPos;
 	private int writePos;
 	private int inUse;
@@ -48,9 +48,27 @@ public class CircularQueue<T>
 		return data[readPos];
 	}
 
+	public bool TryDequeue(out T item)
+	{
+		if (inUse == 0)
+		{
+			item = default;
+			return false;
+		}
+
+		item = data[readPos];
+		data[readPos] = default;
+		readPos = (readPos + 1) % capacity;
+		inUse--;
+		return true;
+	}
+
+
 	public int Count => inUse;
 
 	public bool IsEmpty => inUse == 0;
 
 	public bool IsFull => inUse == capacity;
+
+
 }

@@ -79,7 +79,7 @@ public class DatabasePersistence : Persistence
     /// <summary>
     /// Saca de la cola de eventos y los envia a la base de datos de Firebase
     /// </summary>
-    public override void FlushQueue(ConcurrentQueue<Event> eventQueue)
+    public override void FlushQueue(CircularQueue<Event> eventQueue)
     {
         while (eventQueue.TryDequeue(out Event e))
         {

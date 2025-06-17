@@ -24,6 +24,6 @@ public class Persistence
     public virtual async void SendEvent(Event e) { }
 
     // --- FLUSH QUEUE ---
-    public virtual void FlushQueue(ConcurrentQueue<Event> queue) { }
+    public virtual void FlushQueue(CircularQueue<Event> queue) { }
 
 }

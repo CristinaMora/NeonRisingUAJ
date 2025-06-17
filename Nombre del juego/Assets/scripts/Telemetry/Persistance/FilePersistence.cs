@@ -72,7 +72,7 @@ public class FilePersistence : Persistence
     /// Saca de la cola cuando se superen cierto elementos y escribe en el archivo en el formato
     /// (+ si se mete por tiempo)
     /// </summary>
-    public override void FlushQueue(ConcurrentQueue<Event> eventQueue)
+    public override void FlushQueue(CircularQueue<Event> eventQueue)
     {
         int i = 0;
         bool isFirst = IsFirstJsonEntry();
