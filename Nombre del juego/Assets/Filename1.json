@@ -1,1 +1,6 @@
 [
+{"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"SessionStart","timestamp":1750179156859,"authKey":"SECRET_KEY"},
+{"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"GameStart","timestamp":1750179168925,"authKey":"SECRET_KEY","gameId":"5e2936c5-fe87-48bd-8195-b07d45fd10c9"},
+{"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"PlayerDies","timestamp":1750179170012,"authKey":"SECRET_KEY","gameId":"5e2936c5-fe87-48bd-8195-b07d45fd10c9","position":{"x":4.524579048156738,"y":-1.9711380004882813,"z":0.0},"cause":2},
+{"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"GameEnd","timestamp":1750179170012,"authKey":"SECRET_KEY","gameId":"5e2936c5-fe87-48bd-8195-b07d45fd10c9"},
+{"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"SessionEnd","timestamp":1750179184756,"authKey":"SECRET_KEY"}]
