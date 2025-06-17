@@ -166,27 +166,8 @@ public class Tracker
         // Si el hilo sigue activo
         if (eventThread != null && eventThread.IsAlive)  // Espera a que el hilo termine para continuar
             eventThread.Join();
-
-
-        //Este switch aqu� no debe estar
-        switch (persType)
-        {
-            //AQUI
-            case PersistenceType.LOCAL:
-                switch (format)
-                {
-                    // Escribe "]" si es JSON
-                    case Format.JSON:
-						// Solo escribir si no existe la llave final
-						Debug.Log("Final: " + localPath);
-						string content = File.ReadAllText(Application.dataPath + "/" + ConfigManager.GetLogFilename() + ".json").TrimEnd();
-                        if (!content.EndsWith("]"))
-                        {
-                            File.AppendAllText(Application.dataPath + "/" + ConfigManager.GetLogFilename() + ".json", "]");
-                        }
-                        break;
-                }
-                break;
-        }
+        
+        // Cierra archivos y conexiones
+        persistenceObject.EndPersistance();
     }
 }

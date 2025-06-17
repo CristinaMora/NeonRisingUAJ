@@ -80,6 +80,14 @@ public class FilePersistence : Persistence
         
     }
 
+    /// <summary>
+    /// Cierra los archivos usando el formato necesario
+    /// </summary>
+    public override void EndPersistance()
+    {
+        serializer.endFile();
+    }
+
     private bool IsFirstJsonEntry()
     {
 		try

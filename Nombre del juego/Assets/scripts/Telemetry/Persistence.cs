@@ -16,9 +16,23 @@ public class Persistence
     {}
 
     // --- SEND EVENT ---
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="e">Evento a aniadir</param>
     public virtual async void SendEvent(Event e) { }
 
     // --- FLUSH QUEUE ---
+    /// <summary>
+    /// Vacia la cola de eventos
+    /// </summary>
+    /// <param name="queue">Cola de eventos</param>
     public virtual void FlushQueue(CircularQueue<Event> queue) { }
+
+    // --- END PERSISTANCE ---
+    /// <summary>
+    /// Cierra archivos y conexiones
+    /// </summary>
+    public virtual void EndPersistance() { }
 
 }

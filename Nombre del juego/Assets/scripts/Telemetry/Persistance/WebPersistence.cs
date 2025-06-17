@@ -22,25 +22,6 @@ public class WebPersistence : Persistence
     }
 
     /// <summary>
-    /// Posibilidad de iniciar una conexion con un servidor para enviar
-    /// las trazas de datos y guardarlos en una base de datos
-    /// </summary>
-    private void InitiateDatabaseConnection()
-    {
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.Result == DependencyStatus.Available)
-            {
-                Debug.Log("Firebase available.");
-            }
-            else
-            {
-                Debug.LogError("Firebase not available: " + task.Result);
-            }
-        });
-    }
-
-    /// <summary>
     /// Envio de trazas por servidor web a Google Sheets + AppScript
     /// </summary>
     /// AQUI
@@ -82,5 +63,24 @@ public class WebPersistence : Persistence
             if (e != null)
                 SendEvent(e);
         }
+    }
+
+    /// <summary>
+    /// Posibilidad de iniciar una conexion con un servidor para enviar
+    /// las trazas de datos y guardarlos en una base de datos
+    /// </summary>
+    private void InitiateDatabaseConnection()
+    {
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.Result == DependencyStatus.Available)
+            {
+                Debug.Log("Firebase available.");
+            }
+            else
+            {
+                Debug.LogError("Firebase not available: " + task.Result);
+            }
+        });
     }
 }

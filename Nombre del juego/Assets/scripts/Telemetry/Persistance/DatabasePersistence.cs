@@ -22,25 +22,6 @@ public class DatabasePersistence : Persistence
     }
 
     /// <summary>
-    /// Posibilidad de iniciar una conexion con un servidor para enviar
-    /// las trazas de datos y guardarlos en una base de datos
-    /// </summary>
-    private void InitiateDatabaseConnection()
-    {
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.Result == DependencyStatus.Available)
-            {
-                Debug.Log("Firebase available.");
-            }
-            else
-            {
-                Debug.LogError("Firebase not available: " + task.Result);
-            }
-        });
-    }
-
-    /// <summary>
     /// Envia el evento a Firebase
     /// </summary>
     /// <param name="e"></param>
@@ -75,7 +56,6 @@ public class DatabasePersistence : Persistence
             });
     }
 
-
     /// <summary>
     /// Saca de la cola de eventos y los envia a la base de datos de Firebase
     /// </summary>
@@ -86,6 +66,25 @@ public class DatabasePersistence : Persistence
             if (e != null)
                 SendEvent(e);
         }
-
     }
+
+    /// <summary>
+    /// Posibilidad de iniciar una conexion con un servidor para enviar
+    /// las trazas de datos y guardarlos en una base de datos
+    /// </summary>
+    private void InitiateDatabaseConnection()
+    {
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.Result == DependencyStatus.Available)
+            {
+                Debug.Log("Firebase available.");
+            }
+            else
+            {
+                Debug.LogError("Firebase not available: " + task.Result);
+            }
+        });
+    }
+
 }
