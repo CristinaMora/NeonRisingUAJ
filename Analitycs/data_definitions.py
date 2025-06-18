@@ -73,7 +73,7 @@ class GameDefinition(Definition):
             elif event['cause'] == 2: # Muere por camara
                 self.cameraDeadData.append(event['position'])
         elif event['eventType'] == "ArrowShotEvent": # Evento de flecha
-            if event['arrowType'] == 0: # Flecha danio
+            if event['arrowType'] == 0: # Flecha danyo
                 self.arrowsDamage.append(dict(position = event['position'], hasHit = event['hasHit']))
             elif event['arrowType'] == 1: # Flecha tp
                 self.arrowsTp.append(dict(position = event['position'], hasHit = event['hasHit']))

@@ -10,7 +10,7 @@ def processEvents(data):
     
     total_events = len(sorted_data)
     stack = []
-    stack.append(RootDefinition(stack)) # Le metemos a la pila los eventos
+    stack.append(RootDefinition(stack)) # Lo metemos a la pila los eventos
     death_positions = []  # Lista para almacenar posiciones de muerte
     i = 0
     
@@ -27,58 +27,14 @@ def processEvents(data):
             # Sumamos al contador
             if consumeEvent:
                 i += 1
-                # Capturar eventos de muerte del jugador
+            # Capturar eventos de muerte del jugador
             if currentEvent.get("eventType") == "PlayerDies" and "position" in currentEvent:
                 death_positions.append({
                     "x": currentEvent["position"]["x"],
                     "y": currentEvent["position"]["y"]
                 })
     
-    # Constante de todas las sesiones
-    totalSessions = len(stack[0].sessions)
-    # Guardamos la media de los tipos de muerte de todas las sesiones
-    pinhosDeads = 0
-    enemiesDeads = 0
-    cameraDeads = 0
-    # Guardamos el tiempo medio de todas las partidas de todas las sesiones
-    medianTimes = 0
-    # Guardamos la media fallos de cada tipo de flecha por partida
-    tpArrowMiss=0
-    dangeArrowMiss=0
-    
-    for session in stack[0].sessions:
-        accTpArrowMiss=0
-        accDangeArrowMiss=0
-        accGameLenght = 0
-        for game in session.games:
-            accGameLenght += game.gameLenght
-            pinhosDeads += game.pinhosDeadCount
-            enemiesDeads += game.enemyDeadCount
-            cameraDeads += len(game.cameraDeadData)
-            accTpArrowMiss = len(game.arrowsTp)
-            accDangeArrowMiss = len(game.arrowsDamage)
-
-        if len(session.games) > 0:
-            tpArrowMiss += accTpArrowMiss / len(session.games)
-            dangeArrowMiss += accDangeArrowMiss / len(session.games)
-            medianTimes += accGameLenght / len(session.games)
-
-    if totalSessions > 0:
-        pinhosDeads /= totalSessions
-        enemiesDeads /= totalSessions
-        medianTimes /= totalSessions
-        cameraDeads /= totalSessions
-        tpArrowMiss /= totalSessions
-        dangeArrowMiss /= totalSessions
-
-    return {
-            "medianTime": medianTimes,
-            "deathsPerPinhos": pinhosDeads,
-            "deathsPerEnemies": enemiesDeads,
-            "deathsPerCamera": cameraDeads,
-            "tpMissedArrows": tpArrowMiss,
-            "dangeMissedArrows": dangeArrowMiss,
-        }, death_positions
+    return stack, death_positions
 
 # Genera una imagen con las posiciones de muerte del jugador
 def generateDeathPositionPlot(death_positions, output_path="death_positions.png", background_path=r"back.png"):
@@ -94,15 +50,15 @@ def generateDeathPositionPlot(death_positions, output_path="death_positions.png"
     except FileNotFoundError:
         print(f"No se encontró la imagen de fondo en la ruta: {background_path}")
         return
-    # Crear el gráfico.
+    # Crear el grafico.
     plt.figure(figsize=(6, 15))
     plt.imshow(background_img, extent=[-10, 10, -6, 85], aspect='auto', alpha=0.6)
     plt.scatter(x_coords, y_coords, c="red", alpha=0.7, label="Posiciones de muerte")
     plt.title("Posiciones de muerte del jugador")
     plt.xlabel("Posición X")
     plt.ylabel("Posición Y")
-    plt.xlim(-10, 10)  # Establecer límites del eje X
-    plt.ylim(-6, 85)   # Establecer límites del eje Y
+    plt.xlim(-10, 10)  # Establecer limites del eje X
+    plt.ylim(-6, 85)   # Establecer limites del eje Y
     plt.axhline(0, color="black", linewidth=0.5, linestyle="--")
     plt.axvline(0, color="black", linewidth=0.5, linestyle="--")
     plt.grid(color="gray", linestyle="--", linewidth=0.5, alpha=0.7)
@@ -112,62 +68,192 @@ def generateDeathPositionPlot(death_positions, output_path="death_positions.png"
     plt.savefig(output_path)
     plt.close()
 
+# Devuelve el numero de eventos de cada tipo. Numero de flechas de tipo X totales, flechas de tipo X falladas, muertes por X totales, etc...
+def returnData(stack):
+    # Total de sesiones:
+    totalSessions = len(stack[0].sessions)
+    # Metricas 1:
+    dangeArrowMiss = 0
+    allDangeArrows = 0
+    tpArrowMiss = 0
+    allTpArrows = 0
+    # Metricas 2:
+    pinhosDeads = 0
+    enemiesDeads = 0
+    cameraDeads = 0
+    
+    for session in stack[0].sessions:
+        for game in session.games:
+            # Metricas 1:
+            allDangeArrows += len(game.arrowsDamage)
+            for arrow in game.arrowsDamage:
+                if not arrow['hasHit']:
+                    dangeArrowMiss += 1
+            allTpArrows += len(game.arrowsTp)
+            for arrow in game.arrowsTp:
+                if not arrow['hasHit']:
+                    tpArrowMiss += 1
+            # Metricas 2:
+            pinhosDeads += game.pinhosDeadCount
+            enemiesDeads += game.enemyDeadCount
+            cameraDeads += len(game.cameraDeadData) # Esto es diferente porque en definitions guardamos solo la posicion.
+
+    return {
+            "dangeMissedArrows": dangeArrowMiss,
+            "allDangeArrows": allDangeArrows,
+            "tpMissedArrows": tpArrowMiss,
+            "allTpArrows": allTpArrows,
+            "allDeathsPerPinhos": pinhosDeads,
+            "allDeathsPerEnemies": enemiesDeads,
+            "allDeathsPerCamera": cameraDeads,
+            "totalSessions": totalSessions
+        }
+
 if __name__ == '__main__':
     folder_path = './data'
     
-    # Metricas que queremos
-    medianTime = []
-    deathsPerPinhos = []
-    deathsPerEnemies = []
-    deathsPerCamera = []
-    tpMissedArrows = []
-    dangeMissedArrows = []
-    all_death_positions = []  
-
+    # Metricas:
+    # MMAPA DE CALOR:
+    all_death_positions = [] 
+    # METRICAS 1:
+    allDangeMissedArrowsPerSession = [] # Lista de proporciones de flechas de ataque falladas en cada sesion.
+    allDangeHitArrowsPerSession = [] # Lista de proporciones de flechas de ataque acertadas en cada sesion.
+    allTpMissedArrowsPerSession = [] # Lista de proporciones de flechas de tp falladas en cada sesion.
+    allTpHitArrowsPerSession = [] # Lista de proporciones de flechas de tp acertadas en cada sesion.
+    
+    allDangeMissedArrows = 0 # Numero total de flechas de ataque falladas.
+    allDangeArrows = 0 # Numero total de flechas de ataque lanzadas.
+    allTpMissedArrows = 0 # Numero total de flechas de tp falladas.
+    allTpArrows = 0 # Numero total de flechas de tp lanzadas.
+    # METRICAS 2:
+    allDeathsPerPinhosPerSession = [] # Lista de medias de muertes por pinchos en cada sesion.
+    allDeathsPerEnemiesPerSession = [] # Lista de medias de muertes por enemigos en cada sesion.
+    allDdeathsPerCameraPersession = [] # Lista de medias de muertes por camara en cada sesion.
+    
+    pinhosProportionsPerSession = [] # Lista de proporciones de muertes por pinchos en cada sesion.
+    enemiesProportionsPerSession = [] # Lista de proporciones de muertes por enemigos en cada sesion.
+    cameraProportionsPerSession = [] # Lista de proporciones de muertes por camara en cada sesion.
+    # OTROS:
+    totalSessions = [] # Numero de sesiones de cada archivo.
+    
     for file_name in os.listdir(folder_path):
         if file_name.endswith('.json'):
             file_path = os.path.join(folder_path, file_name)
             with open(file_path, 'r') as file:
                 data = json.load(file)
-                results, death_positions = processEvents(data)
+                stack, death_positions = processEvents(data)
+                resultsPerArchive = returnData(stack) # Resultados del archivo actual.
+                totalSessions.append(resultsPerArchive['totalSessions'])
+                # Mapa de calor: guardar las posiciones de muerte de la sesion.
+                all_death_positions.extend(death_positions)
+                # METRICAS 1: actualizar los contadores de flechas para las proporciones globales..
+                allDangeMissedArrows += resultsPerArchive['dangeMissedArrows']
+                allDangeArrows += resultsPerArchive['allDangeArrows']
+                allTpMissedArrows += resultsPerArchive['tpMissedArrows']
+                allTpArrows += resultsPerArchive['allTpArrows']                      
+                # METRICAS 1: calculo de proporciones por sesion.
+                missedArrows = resultsPerArchive['dangeMissedArrows'] / resultsPerArchive['allDangeArrows']
+                allDangeMissedArrowsPerSession.append(missedArrows)
+                allDangeHitArrowsPerSession.append(1 - missedArrows)
+                missedArrows = resultsPerArchive['tpMissedArrows'] / resultsPerArchive['allTpArrows']
+                allTpMissedArrowsPerSession.append(missedArrows)
+                allTpHitArrowsPerSession.append(1 - missedArrows)
+                # METRICAS 2: calculo de medias de la sesion.
+                allDeathsPerPinhosPerSession.append(resultsPerArchive['allDeathsPerPinhos'] / resultsPerArchive['totalSessions'])
+                allDeathsPerEnemiesPerSession.append(resultsPerArchive['allDeathsPerEnemies'] / resultsPerArchive['totalSessions'])
+                allDdeathsPerCameraPersession.append(resultsPerArchive['allDeathsPerCamera'] / resultsPerArchive['totalSessions'])
+                # METRICAS 2: calculo de proporciones de la sesion.
+                allsSum = resultsPerArchive['allDeathsPerPinhos'] + resultsPerArchive['allDeathsPerEnemies'] + resultsPerArchive['allDeathsPerCamera']
+                pinhosProportionsPerSession.append(resultsPerArchive['allDeathsPerPinhos'] / allsSum)
+                enemiesProportionsPerSession.append(resultsPerArchive['allDeathsPerEnemies'] / allsSum)
+                cameraProportionsPerSession.append(resultsPerArchive['allDeathsPerCamera'] / allsSum)
+                
 
-        # Resultados
-        medianTime.append(results['medianTime'])
-        deathsPerPinhos.append(results['deathsPerPinhos'])
-        deathsPerEnemies.append(results['deathsPerEnemies'])
-        deathsPerCamera.append(results['deathsPerCamera'])
-        tpMissedArrows.append(results['tpMissedArrows'])
-        dangeMissedArrows.append(results['dangeMissedArrows'])
-        all_death_positions.extend(death_positions)
+    # METRICAS 1: calculo de las proporciones generales.
+    dangeMissedArrowsGlobal = allDangeMissedArrows / allDangeArrows
+    dangeHitArrowsGlobal = 1 - dangeMissedArrowsGlobal
+    tpMissedArrowsGlobal = allTpMissedArrows / allTpArrows 
+    tpHitArrowsGlobal = 1 - tpMissedArrowsGlobal
+    # METRICAS 2: calculos de las medias generales
+    allSessions = 0
+    for i in range(0, len(totalSessions)):
+        allSessions += totalSessions[i]
+        
+    accPinhosDeaths = 0
+    for i in range(0, len(allDeathsPerPinhosPerSession)):
+        accPinhosDeaths += allDeathsPerPinhosPerSession[i] * totalSessions[i]
+    pinhosDeathsGlobal = accPinhosDeaths / allSessions
+    
+    accEnemiesDeaths = 0
+    for i in range(0, len(allDeathsPerEnemiesPerSession)):
+        accEnemiesDeaths += allDeathsPerEnemiesPerSession[i] * totalSessions[i]
+    enemiesDeathsGlobal = accEnemiesDeaths / allSessions
+    
+    accCameraDeaths = 0
+    for i in range(0, len(allDdeathsPerCameraPersession)):
+        accCameraDeaths += allDdeathsPerCameraPersession[i] * totalSessions[i]
+    cameraDeathsGlobal = accCameraDeaths / allSessions
 
-    medianT = statistics.mean(medianTime)
-    pinhos = statistics.mean(deathsPerPinhos)
-    enemies = statistics.mean(deathsPerEnemies)
-    camera = statistics.mean(deathsPerCamera)
-    tpArrows = statistics.mean(tpMissedArrows)
-    dangeArrows = statistics.mean(dangeMissedArrows)
+    # METRICAS 2: calculo de las proporciones generales.
+    accSum = accPinhosDeaths + accEnemiesDeaths + accCameraDeaths      
+    
+    pinhosProportion = accPinhosDeaths / accSum
+    enemiesProportion = accEnemiesDeaths / accSum
+    cameraProportion = accCameraDeaths / accSum
 
-    #print("pinchos: ", deathsPerPinhos, "media: ", pinhos)
-    #print("enemigos: ", deathsPerEnemies, "media: ", enemies)
-    #print("camera: ", deathsPerCamera, "media: ", camera)
-    print("camera: ", tpMissedArrows, "media: ", tpArrows)
 
-    # Verificar si se puede calcular la varianza y la moda
-    medianTime_variance = round(statistics.variance(medianTime), 2) if len(medianTime) > 1 else 0
-    deathsPerPinhos_variance = round(statistics.variance(deathsPerPinhos), 2) if len(deathsPerPinhos) > 1 else 0
-    deathsPerEnemies_variance = round(statistics.variance(deathsPerEnemies), 2) if len(deathsPerEnemies) > 1 else 0
-    deathsPerCamera_variance = round(statistics.variance(deathsPerCamera), 2) if len(deathsPerCamera) > 1 else 0
-
-    medianTime_mode = round(statistics.mode(medianTime), 2) if len(medianTime) > 0 else "N/A"
-    deathsPerPinhos_mode = round(statistics.mode(deathsPerPinhos), 2) if len(deathsPerPinhos) > 0 else "N/A"
-    deathsPerEnemies_mode = round(statistics.mode(deathsPerEnemies), 2) if len(deathsPerEnemies) > 0 else "N/A"
-    deathsPerCamera_mode = round(statistics.mode(deathsPerCamera), 2) if len(deathsPerCamera) > 0 else "N/A"
-
-    print(f"TIEMPO MEDIO POR SESION: {round(medianT/1000, 2)}s Y VARIANZA: {medianTime_variance} Y MODA: {medianTime_mode}")
-    print(f"MEDIA DE MUERTES POR PINCHOS: {round(pinhos, 2)} Y VARIANZA: {deathsPerPinhos_variance} Y MODA: {deathsPerPinhos_mode}")
-    print(f"MEDIA DE MUERTES POR ENEMIGOS: {round(enemies, 2)} Y VARIANZA: {deathsPerEnemies_variance} Y MODA: {deathsPerEnemies_mode}")
-    print(f"MEDIA DE MUERTES POR CAMARA: {round(camera, 2)} Y VARIANZA: {deathsPerCamera_variance} Y MODA: {deathsPerCamera_mode}")
-    print(f"MEDIA DE FLECHAS DE TP FALLADAS: {round(tpArrows/100, 4)}%")
-    print(f"MEDIA DE FLECHAS DE ATAQUE FALLADAS: {round(dangeArrows/100, 4)}%")
-
+    # Escritura de resultados:
+    print(f"RESULTADOS:")
+    print(f"Total de sesiones: {allSessions}")
+    # MAPA DE CALOR:
     generateDeathPositionPlot(all_death_positions)
+    # METRICAS 1:
+    print(f"\nMETRICAS 1:")
+    # Flechas de ataque:
+    print(f"\nTASA GLOBAL DE FALLOS DE FLECHA DE ATAQUE: {round(dangeMissedArrowsGlobal, 2)}%")
+    print(f"TASA POR SESION DE FALLOS DE FLECHA DE ATAQUE:")
+    for i in range(0, len(allDangeMissedArrowsPerSession)):
+        print(f"Sesion: {i} Tasa: {round(allDangeMissedArrowsPerSession[i], 2)}") 
+    print(f"\nTASA GLOBAL DE ACIERTOS DE FLECHA DE ATAQUE: {round(dangeHitArrowsGlobal, 2)}%")
+    print(f"TASA POR SESION DE ACIERTOS DE FLECHA DE ATAQUE:")
+    for i in range(0, len(allDangeHitArrowsPerSession)):
+        print(f"Sesion: {i} Tasa: {round(allDangeHitArrowsPerSession[i], 2)}") 
+    # Flechas de tp:
+    print(f"\nTASA GLOBAL DE FALLOS DE FLECHA DE TP: {round(tpMissedArrowsGlobal, 2)}%")
+    print(f"TASA POR SESION DE FALLOS DE FLECHA DE TP:")
+    for i in range(0, len(allTpMissedArrowsPerSession)):
+        print(f"Sesion: {i} Tasa: {round(allTpMissedArrowsPerSession[i], 2)}") 
+    print(f"\nTASA GLOBAL DE ACIERTOS DE FLECHA DE TP: {round(tpHitArrowsGlobal, 2)}%")
+    print(f"TASA POR SESION DE ACIERTOS DE FLECHA DE TP:")
+    for i in range(0, len(allTpHitArrowsPerSession)):
+        print(f"Sesion: {i} Tasa: {round(allTpHitArrowsPerSession[i], 2)}") 
+    # METRICAS 2:
+    print(f"\nMETRICAS 2:")
+    # Muertes por pinhos:
+    print(f"\nMEDIA GLOBAL DE MUERTES POR PINCHOS: {round(pinhosDeathsGlobal, 2)}")
+    print(f"MEDIA POR SESION DE MUERTES POR PINCHOS:")
+    for i in range(0, len(allDeathsPerPinhosPerSession)):
+        print(f"Sesion: {i} Media: {round(allDeathsPerPinhosPerSession[i], 2)}") 
+    # Muertes por enemigos:
+    print(f"\nMEDIA GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesDeathsGlobal, 2)}")
+    print(f"MEDIA POR SESION DE MUERTES POR ENEMIGOS:")
+    for i in range(0, len(allDeathsPerEnemiesPerSession)):
+        print(f"Sesion: {i} Media: {round(allDeathsPerEnemiesPerSession[i], 2)}") 
+    # Muertes por camara:
+    print(f"\nMEDIA GLOBAL DE MUERTES POR CAMARA: {round(cameraDeathsGlobal, 2)}")
+    print(f"MEDIA POR SESION DE MUERTES POR CAMARA:")
+    for i in range(0, len(allDdeathsPerCameraPersession)):
+        print(f"Sesion: {i} Media: {round(allDdeathsPerCameraPersession[i], 2)}")
+    # Proporciones:
+    print(f"\nPROPORCION GLOBAL DE MUERTES POR PINCHOS: {round(pinhosProportion, 2)}")
+    print(f"PROPORCION POR SESION DE MUERTES POR PINCHOS:")
+    for i in range(0, len(pinhosProportionsPerSession)):
+        print(f"Sesion: {i} Media: {round(pinhosProportionsPerSession[i], 2)}%") 
+    print(f"\nPROPORCION GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesProportion, 2)}%")
+    print(f"PROPORCION POR SESION DE MUERTES POR ENEMIGOS:")
+    for i in range(0, len(enemiesProportionsPerSession)):
+        print(f"Sesion: {i} Media: {round(enemiesProportionsPerSession[i], 2)}%") 
+    print(f"\nPROPORCION GLOBAL DE MUERTES POR CAMARA: {round(cameraProportion, 2)}%")
+    print(f"PROPORCION POR SESION DE MUERTES POR CAMARA:")
+    for i in range(0, len(cameraProportionsPerSession)):
+        print(f"Sesion: {i} Media: {round(cameraProportionsPerSession[i], 2)}%") 
