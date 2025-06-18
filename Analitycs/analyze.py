@@ -152,27 +152,32 @@ if __name__ == '__main__':
                 allTpMissedArrows += resultsPerArchive['tpMissedArrows']
                 allTpArrows += resultsPerArchive['allTpArrows']                      
                 # METRICAS 1: calculo de proporciones por sesion.
-                missedArrows = resultsPerArchive['dangeMissedArrows'] / resultsPerArchive['allDangeArrows']
-                allDangeMissedArrowsPerSession.append(missedArrows)
-                allDangeHitArrowsPerSession.append(1 - missedArrows)
-                missedArrows = resultsPerArchive['tpMissedArrows'] / resultsPerArchive['allTpArrows']
-                allTpMissedArrowsPerSession.append(missedArrows)
-                allTpHitArrowsPerSession.append(1 - missedArrows)
+                if not resultsPerArchive['allDangeArrows'] == 0:
+                    missedArrows = resultsPerArchive['dangeMissedArrows'] / resultsPerArchive['allDangeArrows']
+                    allDangeMissedArrowsPerSession.append(missedArrows)
+                    allDangeHitArrowsPerSession.append(1 - missedArrows)
+                if not resultsPerArchive['allDangeArrows'] == 0:
+                    missedArrows = resultsPerArchive['tpMissedArrows'] / resultsPerArchive['allTpArrows']
+                    allTpMissedArrowsPerSession.append(missedArrows)
+                    allTpHitArrowsPerSession.append(1 - missedArrows)
                 # METRICAS 2: calculo de medias de la sesion.
                 allDeathsPerPinhosPerSession.append(resultsPerArchive['allDeathsPerPinhos'] / resultsPerArchive['totalSessions'])
                 allDeathsPerEnemiesPerSession.append(resultsPerArchive['allDeathsPerEnemies'] / resultsPerArchive['totalSessions'])
                 allDdeathsPerCameraPersession.append(resultsPerArchive['allDeathsPerCamera'] / resultsPerArchive['totalSessions'])
                 # METRICAS 2: calculo de proporciones de la sesion.
                 allsSum = resultsPerArchive['allDeathsPerPinhos'] + resultsPerArchive['allDeathsPerEnemies'] + resultsPerArchive['allDeathsPerCamera']
-                pinhosProportionsPerSession.append(resultsPerArchive['allDeathsPerPinhos'] / allsSum)
-                enemiesProportionsPerSession.append(resultsPerArchive['allDeathsPerEnemies'] / allsSum)
-                cameraProportionsPerSession.append(resultsPerArchive['allDeathsPerCamera'] / allsSum)
+                if not resultsPerArchive['allDeathsPerPinhos'] == 0 and not allsSum == 0:
+                    pinhosProportionsPerSession.append(resultsPerArchive['allDeathsPerPinhos'] / allsSum)
+                if not resultsPerArchive['allDeathsPerEnemies'] == 0 and not allsSum == 0:
+                    enemiesProportionsPerSession.append(resultsPerArchive['allDeathsPerEnemies'] / allsSum)
+                if not resultsPerArchive['allDeathsPerCamera'] == 0 and not allsSum == 0:
+                    cameraProportionsPerSession.append(resultsPerArchive['allDeathsPerCamera'] / allsSum)
                 
 
     # METRICAS 1: calculo de las proporciones generales.
-    dangeMissedArrowsGlobal = allDangeMissedArrows / allDangeArrows
+    dangeMissedArrowsGlobal = allDangeMissedArrows / allDangeArrows if allDangeArrows != 0 else 0
     dangeHitArrowsGlobal = 1 - dangeMissedArrowsGlobal
-    tpMissedArrowsGlobal = allTpMissedArrows / allTpArrows 
+    tpMissedArrowsGlobal = allTpMissedArrows / allTpArrows if allTpArrows != 0 else 0
     tpHitArrowsGlobal = 1 - tpMissedArrowsGlobal
     # METRICAS 2: calculos de las medias generales
     allSessions = 0
@@ -182,24 +187,24 @@ if __name__ == '__main__':
     accPinhosDeaths = 0
     for i in range(0, len(allDeathsPerPinhosPerSession)):
         accPinhosDeaths += allDeathsPerPinhosPerSession[i] * totalSessions[i]
-    pinhosDeathsGlobal = accPinhosDeaths / allSessions
+    pinhosDeathsGlobal = accPinhosDeaths / allSessions if allSessions != 0 else 0
     
     accEnemiesDeaths = 0
     for i in range(0, len(allDeathsPerEnemiesPerSession)):
         accEnemiesDeaths += allDeathsPerEnemiesPerSession[i] * totalSessions[i]
-    enemiesDeathsGlobal = accEnemiesDeaths / allSessions
+    enemiesDeathsGlobal = accEnemiesDeaths / allSessions if allSessions != 0 else 0
     
     accCameraDeaths = 0
     for i in range(0, len(allDdeathsPerCameraPersession)):
         accCameraDeaths += allDdeathsPerCameraPersession[i] * totalSessions[i]
-    cameraDeathsGlobal = accCameraDeaths / allSessions
+    cameraDeathsGlobal = accCameraDeaths / allSessions if allSessions != 0 else 0
 
     # METRICAS 2: calculo de las proporciones generales.
     accSum = accPinhosDeaths + accEnemiesDeaths + accCameraDeaths      
     
-    pinhosProportion = accPinhosDeaths / accSum
-    enemiesProportion = accEnemiesDeaths / accSum
-    cameraProportion = accCameraDeaths / accSum
+    pinhosProportion = accPinhosDeaths / accSum if accSum != 0 else 0
+    enemiesProportion = accEnemiesDeaths / accSum if accSum != 0 else 0
+    cameraProportion = accCameraDeaths / accSum if accSum != 0 else 0
 
 
     # Escritura de resultados:
