@@ -3,4 +3,10 @@
 {"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"GameStart","timestamp":1750179168925,"authKey":"SECRET_KEY","gameId":"5e2936c5-fe87-48bd-8195-b07d45fd10c9"},
 {"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"PlayerDies","timestamp":1750179170012,"authKey":"SECRET_KEY","gameId":"5e2936c5-fe87-48bd-8195-b07d45fd10c9","position":{"x":4.524579048156738,"y":-1.9711380004882813,"z":0.0},"cause":2},
 {"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"GameEnd","timestamp":1750179170012,"authKey":"SECRET_KEY","gameId":"5e2936c5-fe87-48bd-8195-b07d45fd10c9"},
-{"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"SessionEnd","timestamp":1750179184756,"authKey":"SECRET_KEY"}]
+{"sessionId":"2494c650-6a9b-49e7-b9e4-bd5f5b8e325a","eventType":"SessionEnd","timestamp":1750179184756,"authKey":"SECRET_KEY"}
+,
+{"sessionId":"57a26efd-2e77-4f63-8894-8641e0ff279b","eventType":"SessionStart","timestamp":1750260337782,"authKey":"SECRET_KEY"},
+{"sessionId":"57a26efd-2e77-4f63-8894-8641e0ff279b","eventType":"GameStart","timestamp":1750260350567,"authKey":"SECRET_KEY","gameId":"ad1004f2-c63a-4e77-b6ad-1b852807fe91"},
+{"sessionId":"57a26efd-2e77-4f63-8894-8641e0ff279b","eventType":"PlayerDies","timestamp":1750260352074,"authKey":"SECRET_KEY","gameId":"ad1004f2-c63a-4e77-b6ad-1b852807fe91","position":{"x":4.524579048156738,"y":-1.9711380004882813,"z":0.0},"cause":2},
+{"sessionId":"57a26efd-2e77-4f63-8894-8641e0ff279b","eventType":"GameEnd","timestamp":1750260352074,"authKey":"SECRET_KEY","gameId":"ad1004f2-c63a-4e77-b6ad-1b852807fe91"},
+{"sessionId":"57a26efd-2e77-4f63-8894-8641e0ff279b","eventType":"SessionEnd","timestamp":1750260353864,"authKey":"SECRET_KEY"}

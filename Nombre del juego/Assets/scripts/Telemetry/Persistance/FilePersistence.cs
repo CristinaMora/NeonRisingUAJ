@@ -21,7 +21,6 @@ public class FilePersistence : Persistence
     /// (+ si se mete por tiempo)
     /// </summary>
     /// 
-    //AQUI
     public override void FlushQueue(CircularQueue<Event> eventQueue)
     {
 
@@ -36,36 +35,11 @@ public class FilePersistence : Persistence
 			{
 				if (e != null)
 				{
-					string data;
-					//switch (format)
-					//{
-					//	case Format.JSON:
-					//		data = e.ToJSON();
-					//		break;
-					//	case Format.CSV:
-					//		data = e.ToCSV();
-					//		break;
-					//	default:
-					//		throw new ArgumentOutOfRangeException(nameof(format), format, null);
-					//}
+                    string data;
 
-                    ///Ahora mismo no est� cubierta la excepci�n de formato no encontrado
                     data = serializer.Serialize(e); //Serializamos el evento
                     serializer.AppendSerializedData(batch, data, ref isFirst);  //Escribimos el evento siguiendo el formato
-                    
 
-					//if (format == Format.JSON)
-					//{
-					//	// En caso de no ser el primero, necesita una coma delante.
-					//	if (!isFirst)
-					//		batch.Append(",\n");
-					//	batch.Append(data);
-					//	isFirst = false;
-					//}
-					//else
-					//{
-					//	batch.AppendLine(data);
-					//}
 				}
 				i++;
 			}
@@ -85,7 +59,8 @@ public class FilePersistence : Persistence
     /// </summary>
     public override void EndPersistance()
     {
-        serializer.endFile();
+        string content = File.ReadAllText(localPath).TrimEnd();
+        File.AppendAllText(localPath, serializer.endFile(content));
     }
 
     private bool IsFirstJsonEntry()

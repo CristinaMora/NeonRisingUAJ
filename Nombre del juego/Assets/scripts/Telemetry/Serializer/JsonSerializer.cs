@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using static Tracker;
+using UnityEngine.Rendering;
 
 
 public class JsonSerializer : ISerializer
@@ -38,5 +40,10 @@ public class JsonSerializer : ISerializer
         return lastBracketIndex != -1;
     }
 
-    public string endFile() { return ""; }
+    public string endFile(string c) {
+        // Solo escribir si no existe la llave final
+        // Escribe "]"
+        if (!c.EndsWith("]")) return "]";
+        else return "";
+    }
 }

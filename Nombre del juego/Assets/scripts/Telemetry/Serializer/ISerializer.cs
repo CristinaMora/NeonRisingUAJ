@@ -14,5 +14,5 @@ public interface ISerializer
 
     bool changeOfSesion(ref string content, int lastbracket);
 
-    string endFile();
+    string endFile(string content);
 }

@@ -60,7 +60,6 @@ public class Tracker
 
         eventQueue = new CircularQueue<Event>(ConfigManager.GetEventsToWriteSize());
 
-        //AQUI
         // Creation of the Serializer
         switch (format)
         {
