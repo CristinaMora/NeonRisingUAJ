@@ -77,7 +77,6 @@ public class Tracker
 
             case PersistenceType.LOCAL:
               
-                //AQUI
                 persistenceObject = new FilePersistence(serializeFormat);
                 break;
             case PersistenceType.DATABASE:
