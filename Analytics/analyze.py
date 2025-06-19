@@ -1,6 +1,5 @@
 import json
 import os
-import statistics
 from data_definitions import RootDefinition
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -81,7 +80,7 @@ def returnData(stack):
     pinhosDeads = 0
     enemiesDeads = 0
     cameraDeads = 0
-    deathsObjects = []
+    deathObjects = {}
     
     for session in stack[0].sessions:
         for game in session.games:
@@ -99,7 +98,10 @@ def returnData(stack):
             enemiesDeads += game.enemyDeadCount
             cameraDeads += len(game.cameraDeadData) # Esto es diferente porque en definitions guardamos solo la posicion.
             for object in game.objects: # Guardamos los objetos que han causado la muerte.
-                deathsObjects[object['name']] += 1
+                if object['name'] in deathObjects:
+                    deathObjects[object['name']] += 1
+                else:
+                    deathObjects[object['name']] = 1
 
     return {
             "dangeMissedArrows": dangeArrowMiss,
@@ -110,7 +112,7 @@ def returnData(stack):
             "allDeathsPerEnemies": enemiesDeads,
             "allDeathsPerCamera": cameraDeads,
             "totalSessions": totalSessions,
-            "deathObjects": deathsObjects
+            "deathObjects": deathObjects
         }
 
 if __name__ == '__main__':
@@ -138,7 +140,7 @@ if __name__ == '__main__':
     enemiesProportionsPerSession = [] # Lista de proporciones de muertes por enemigos en cada sesion.
     cameraProportionsPerSession = [] # Lista de proporciones de muertes por camara en cada sesion.
     
-    objectsDeathsPerSession = [] # Lista con los diccionarios de objetos que han matado al jugador en cada sesion.
+    deathObjectsPerSession = [] # Lista con los diccionarios de objetos que han matado al jugador en cada sesion.
     # OTROS:
     totalSessions = [] # Numero de sesiones de cada archivo.
     
@@ -179,7 +181,7 @@ if __name__ == '__main__':
                 if not resultsPerArchive['allDeathsPerCamera'] == 0 and not allsSum == 0:
                     cameraProportionsPerSession.append(resultsPerArchive['allDeathsPerCamera'] / allsSum)
                 # METRICAS 2: guardar los objetos que han matado al jugador.
-                objectsDeathsPerSession.append(resultsPerArchive['deathObjects'])
+                deathObjectsPerSession.append(resultsPerArchive['deathObjects'])
                 
 
     # METRICAS 1: calculo de las proporciones generales.
@@ -215,11 +217,14 @@ if __name__ == '__main__':
     cameraProportion = accCameraDeaths / accSum if accSum != 0 else 0
     
     # METRICAS 2: computo total de los objetos que han matado al jugador.
-    deathObjectsGlobal = []
-    for i in range(0, len(objectsDeathsPerSession)):
-        for name, count in objectsDeathsPerSession[i]:
-            deathObjectsGlobal[name] += count
-
+    deathObjectsGlobal = {}
+    for i in range(0, len(deathObjectsPerSession)):
+        for object in deathObjectsPerSession[i]:
+            if object in deathObjectsGlobal:
+                deathObjectsGlobal[object] += deathObjectsPerSession[i][object]
+            else:
+                deathObjectsGlobal[object] = deathObjectsPerSession[i][object]
+                
 
     # Escritura de resultados:
     print(f"RESULTADOS:")
@@ -232,49 +237,61 @@ if __name__ == '__main__':
     print(f"\nTASA GLOBAL DE FALLOS DE FLECHA DE ATAQUE: {round(dangeMissedArrowsGlobal, 2)}%")
     print(f"TASA POR SESION DE FALLOS DE FLECHA DE ATAQUE:")
     for i in range(0, len(allDangeMissedArrowsPerSession)):
-        print(f"Sesion: {i} Tasa: {round(allDangeMissedArrowsPerSession[i], 2)}") 
+        print(f"Sesion: {i}, Tasa: {round(allDangeMissedArrowsPerSession[i], 2)}") 
     print(f"\nTASA GLOBAL DE ACIERTOS DE FLECHA DE ATAQUE: {round(dangeHitArrowsGlobal, 2)}%")
     print(f"TASA POR SESION DE ACIERTOS DE FLECHA DE ATAQUE:")
     for i in range(0, len(allDangeHitArrowsPerSession)):
-        print(f"Sesion: {i} Tasa: {round(allDangeHitArrowsPerSession[i], 2)}") 
+        print(f"Sesion: {i}, Tasa: {round(allDangeHitArrowsPerSession[i], 2)}") 
     # Flechas de tp:
     print(f"\nTASA GLOBAL DE FALLOS DE FLECHA DE TP: {round(tpMissedArrowsGlobal, 2)}%")
     print(f"TASA POR SESION DE FALLOS DE FLECHA DE TP:")
     for i in range(0, len(allTpMissedArrowsPerSession)):
-        print(f"Sesion: {i} Tasa: {round(allTpMissedArrowsPerSession[i], 2)}") 
+        print(f"Sesion: {i}, Tasa: {round(allTpMissedArrowsPerSession[i], 2)}") 
     print(f"\nTASA GLOBAL DE ACIERTOS DE FLECHA DE TP: {round(tpHitArrowsGlobal, 2)}%")
     print(f"TASA POR SESION DE ACIERTOS DE FLECHA DE TP:")
     for i in range(0, len(allTpHitArrowsPerSession)):
-        print(f"Sesion: {i} Tasa: {round(allTpHitArrowsPerSession[i], 2)}") 
+        print(f"Sesion: {i}, Tasa: {round(allTpHitArrowsPerSession[i], 2)}") 
     # METRICAS 2:
     print(f"\nMETRICAS 2:")
     # Muertes por pinhos:
     print(f"\nMEDIA GLOBAL DE MUERTES POR PINCHOS: {round(pinhosDeathsGlobal, 2)}")
     print(f"MEDIA POR SESION DE MUERTES POR PINCHOS:")
     for i in range(0, len(allDeathsPerPinhosPerSession)):
-        print(f"Sesion: {i} Media: {round(allDeathsPerPinhosPerSession[i], 2)}") 
+        print(f"Sesion: {i}, Media: {round(allDeathsPerPinhosPerSession[i], 2)}") 
     # Muertes por enemigos:
     print(f"\nMEDIA GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesDeathsGlobal, 2)}")
     print(f"MEDIA POR SESION DE MUERTES POR ENEMIGOS:")
     for i in range(0, len(allDeathsPerEnemiesPerSession)):
-        print(f"Sesion: {i} Media: {round(allDeathsPerEnemiesPerSession[i], 2)}") 
+        print(f"Sesion: {i}, Media: {round(allDeathsPerEnemiesPerSession[i], 2)}") 
     # Muertes por camara:
     print(f"\nMEDIA GLOBAL DE MUERTES POR CAMARA: {round(cameraDeathsGlobal, 2)}")
     print(f"MEDIA POR SESION DE MUERTES POR CAMARA:")
     for i in range(0, len(allDdeathsPerCameraPersession)):
-        print(f"Sesion: {i} Media: {round(allDdeathsPerCameraPersession[i], 2)}")
+        print(f"Sesion: {i}, Media: {round(allDdeathsPerCameraPersession[i], 2)}")
     # Proporciones:
     print(f"\nPROPORCION GLOBAL DE MUERTES POR PINCHOS: {round(pinhosProportion, 2)}")
     print(f"PROPORCION POR SESION DE MUERTES POR PINCHOS:")
     for i in range(0, len(pinhosProportionsPerSession)):
-        print(f"Sesion: {i} Media: {round(pinhosProportionsPerSession[i], 2)}%") 
+        print(f"Sesion: {i}, Media: {round(pinhosProportionsPerSession[i], 2)}%") 
     print(f"\nPROPORCION GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesProportion, 2)}%")
     print(f"PROPORCION POR SESION DE MUERTES POR ENEMIGOS:")
     for i in range(0, len(enemiesProportionsPerSession)):
-        print(f"Sesion: {i} Media: {round(enemiesProportionsPerSession[i], 2)}%") 
+        print(f"Sesion: {i}, Media: {round(enemiesProportionsPerSession[i], 2)}%") 
     print(f"\nPROPORCION GLOBAL DE MUERTES POR CAMARA: {round(cameraProportion, 2)}%")
     print(f"PROPORCION POR SESION DE MUERTES POR CAMARA:")
     for i in range(0, len(cameraProportionsPerSession)):
-        print(f"Sesion: {i} Media: {round(cameraProportionsPerSession[i], 2)}%")
+        print(f"Sesion: {i}, Media: {round(cameraProportionsPerSession[i], 2)}%")
     # Frecuencias:
-    print(f"aaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print(f"\nTABLA DE FRECUENCIAS GLOBAL DE CADA OBJETO:")
+    keys = list(deathObjectsGlobal.keys())
+    values = list(deathObjectsGlobal.values())
+    for i in range(0, len(deathObjectsGlobal)):
+        print(f"Objeto: {keys[i]}, Veces: {values[i]}")
+    print(f"TABLA DE FRECUENCIAS POR SESION DE CADA OBJETO:")
+    for i in range(0, len(deathObjectsPerSession)):
+        keys = list(deathObjectsPerSession[i].keys())
+        values = list(deathObjectsPerSession[i].values())
+        for j in range(0, len(deathObjectsPerSession[i])):
+            print(f"Sesion: {i}, Objeto: {keys[j]}, Veces: {values[j]}")
+    
+    

@@ -77,6 +77,7 @@ class GameDefinition(Definition):
                 self.objects.append(dict(position = event['position'], name = event['name']))
             elif event['cause'] == 2: # Muere por camara
                 self.cameraDeadData.append(event['position'])
+                self.objects.append(dict(position = event['position'], name = event['name']))
         elif event['eventType'] == "ArrowShotEvent": # Evento de flecha
             if event['arrowType'] == 0: # Flecha danyo
                 self.arrowsDamage.append(dict(position = event['position'], hasHit = event['hasHit']))
