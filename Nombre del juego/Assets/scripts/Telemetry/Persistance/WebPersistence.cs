@@ -1,14 +1,10 @@
 using Firebase;
-using Firebase.Database;
 using Firebase.Extensions;
 using System;
-using System.Collections.Concurrent;
-using System.IO;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Mail;
 using System.Text;
 using UnityEngine;
-using static Tracker;
 
 public class WebPersistence : Persistence
 {
@@ -55,9 +51,9 @@ public class WebPersistence : Persistence
     /// <summary>
     /// Saca de la cola de eventos y los envia al servidor web
     /// </summary>
-    public override void FlushQueue(CircularQueue<Event> eventQueue)
+    public override void FlushQueue(List<Event> eventList)
     {
-        while (eventQueue.TryDequeue(out Event e))
+        foreach (var e in eventList)
         {
             if (e != null)
                 SendEvent(e);

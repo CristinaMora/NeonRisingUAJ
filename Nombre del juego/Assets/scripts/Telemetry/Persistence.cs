@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class Persistence
 {
@@ -16,7 +19,7 @@ public class Persistence
     /// Vacia la cola de eventos
     /// </summary>
     /// <param name="queue">Cola de eventos</param>
-    public virtual void FlushQueue(CircularQueue<Event> queue) { }
+    public virtual void FlushQueue(List<Event> eventList) { }
 
     // --- END PERSISTANCE ---
     /// <summary>

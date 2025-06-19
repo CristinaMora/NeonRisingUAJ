@@ -3,6 +3,7 @@ using Firebase.Database;
 using Firebase.Extensions;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Mail;
@@ -59,9 +60,9 @@ public class DatabasePersistence : Persistence
     /// <summary>
     /// Saca de la cola de eventos y los envia a la base de datos de Firebase
     /// </summary>
-    public override void FlushQueue(CircularQueue<Event> eventQueue)
+    public override void FlushQueue(List<Event> eventList)
     {
-        while (eventQueue.TryDequeue(out Event e))
+        foreach(var e in eventList)
         {
             if (e != null)
                 SendEvent(e);

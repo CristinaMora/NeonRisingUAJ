@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Text;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
@@ -119,8 +117,14 @@ public class Tracker
                 Debug.Log("Estado del hilo: " + eventThread.ThreadState);
                 writeSignal.WaitOne(); // Espera que se le indique que guarde
 
+                List<Event> flushQueue = new List<Event>();
+                for (int i = 0; i < eventQueue.Count; i++)
+                {
+                    flushQueue.Add(eventQueue.Front());
+                    eventQueue.Pop();
+                }
 
-                persistenceObject.FlushQueue(eventQueue);
+                persistenceObject.FlushQueue(flushQueue);
             }
             Debug.Log("Final del hilo");
         }

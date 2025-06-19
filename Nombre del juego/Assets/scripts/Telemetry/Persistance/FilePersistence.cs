@@ -1,12 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
-using static Tracker;
+
 public class FilePersistence : Persistence
 {
     private string localPath;   // Ruta en donde se guarda el archivo con los datos
     private ISerializer serializer; // Formato de los eventos
+    private bool createdFile = true; // Flag para cuando no se ha creado un archivo
 
     public FilePersistence(ISerializer _format) : base()
     {
@@ -20,9 +22,13 @@ public class FilePersistence : Persistence
     /// (+ si se mete por tiempo)
     /// </summary>
     /// 
-    public override void FlushQueue(CircularQueue<Event> eventQueue)
+    public override void FlushQueue(List<Event> eventList)
     {
-
+        if (!createdFile)
+        {
+            Debug.Log("Critical error: File not created");
+            return;
+        }
         try
         {
             int i = 0;
@@ -30,7 +36,7 @@ public class FilePersistence : Persistence
 
             StringBuilder batch = new StringBuilder();
 
-            while (eventQueue.TryDequeue(out Event e))
+            foreach (var e in eventList)
             {
                 if (e != null)
                 {
@@ -64,6 +70,7 @@ public class FilePersistence : Persistence
 
     private bool IsFirstJsonEntry()
     {
+        
         try
         {
             if (!File.Exists(localPath)) return true;
@@ -122,6 +129,7 @@ public class FilePersistence : Persistence
         catch (Exception ex)
         {
             Debug.LogError($"[FilePersistence] There was an error while opening the file: {ex.Message}");
+            createdFile = false;
         }
 
     }
