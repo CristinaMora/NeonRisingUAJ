@@ -3,6 +3,7 @@ import os
 from data_definitions import RootDefinition
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from PDFWriter import PDFWriter 
 
 def processEvents(data):
     sorted_data = sorted(data, key = lambda x: x['timestamp']) # Eventos ordenados por tiempo.
@@ -143,6 +144,7 @@ if __name__ == '__main__':
     deathObjectsPerSession = [] # Lista con los diccionarios de objetos que han matado al jugador en cada sesion.
     # OTROS:
     totalSessions = [] # Numero de sesiones de cada archivo.
+    pdfWriter = PDFWriter ("output.pdf")  
     
     for file_name in os.listdir(folder_path):
         if file_name.endswith('.json'):
@@ -227,74 +229,87 @@ if __name__ == '__main__':
                 
 
     # Escritura de resultados:
-    print(f"RESULTADOS:")
-    print(f"Total de archivos: {len(totalSessions)}")
-    print(f"Total de sesiones: {allSessions}")
+    pdfWriter.addText(f"RESULTADOS:", 12)
+    pdfWriter.addText(f"Total de archivos: {len(totalSessions)}", 8)
+    pdfWriter.addText(f"Total de sesiones: {allSessions}", 8)
     # MAPA DE CALOR:
     generateDeathPositionPlot(all_death_positions)
     # METRICAS 1:
-    print(f"\nMETRICAS 1:")
+    pdfWriter.addText(f"\nMETRICAS 1:", 10)
     # Flechas de ataque:
-    print(f"\nTASA GLOBAL DE FALLOS DE FLECHA DE ATAQUE: {round(dangeMissedArrowsGlobal, 2)}%")
-    print(f"TASA POR ARCHIVO DE FALLOS DE FLECHA DE ATAQUE:")
+    pdfWriter.addText(f"\nTASA GLOBAL DE FALLOS DE FLECHA DE ATAQUE: {round(dangeMissedArrowsGlobal, 2)}%", 8)
+    pdfWriter.addText(f"TASA POR ARCHIVO DE FALLOS DE FLECHA DE ATAQUE:", 8)
     for i in range(0, len(allDangeMissedArrowsPerSession)):
-        print(f"Archivo: {i}, Tasa: {round(allDangeMissedArrowsPerSession[i], 2)}") 
-    print(f"\nTASA GLOBAL DE ACIERTOS DE FLECHA DE ATAQUE: {round(dangeHitArrowsGlobal, 2)}%")
-    print(f"TASA POR ARCHIVO DE ACIERTOS DE FLECHA DE ATAQUE:")
+        pdfWriter.addText(f"Archivo: {i}, Tasa: {round(allDangeMissedArrowsPerSession[i], 2)}", 8) 
+    pdfWriter.addText(f"\nTASA GLOBAL DE ACIERTOS DE FLECHA DE ATAQUE: {round(dangeHitArrowsGlobal, 2)}%", 8)
+    pdfWriter.addText(f"TASA POR ARCHIVO DE ACIERTOS DE FLECHA DE ATAQUE:", 8)
     for i in range(0, len(allDangeHitArrowsPerSession)):
-        print(f"Archivo: {i}, Tasa: {round(allDangeHitArrowsPerSession[i], 2)}") 
+        pdfWriter.addText(f"Archivo: {i}, Tasa: {round(allDangeHitArrowsPerSession[i], 2)}", 8) 
     # Flechas de tp:
-    print(f"\nTASA GLOBAL DE FALLOS DE FLECHA DE TP: {round(tpMissedArrowsGlobal, 2)}%")
-    print(f"TASA POR ARCHIVO DE FALLOS DE FLECHA DE TP:")
+    pdfWriter.addText(f"\nTASA GLOBAL DE FALLOS DE FLECHA DE TP: {round(tpMissedArrowsGlobal, 2)}%", 8)
+    pdfWriter.addText(f"TASA POR ARCHIVO DE FALLOS DE FLECHA DE TP:", 8)
     for i in range(0, len(allTpMissedArrowsPerSession)):
-        print(f"Archivo: {i}, Tasa: {round(allTpMissedArrowsPerSession[i], 2)}") 
-    print(f"\nTASA GLOBAL DE ACIERTOS DE FLECHA DE TP: {round(tpHitArrowsGlobal, 2)}%")
-    print(f"TASA POR ARCHIVO DE ACIERTOS DE FLECHA DE TP:")
+        pdfWriter.addText(f"Archivo: {i}, Tasa: {round(allTpMissedArrowsPerSession[i], 2)}", 8) 
+    pdfWriter.addText(f"\nTASA GLOBAL DE ACIERTOS DE FLECHA DE TP: {round(tpHitArrowsGlobal, 2)}%", 8)
+    pdfWriter.addText(f"TASA POR ARCHIVO DE ACIERTOS DE FLECHA DE TP:", 8)
     for i in range(0, len(allTpHitArrowsPerSession)):
-        print(f"Archivo: {i}, Tasa: {round(allTpHitArrowsPerSession[i], 2)}") 
+        pdfWriter.addText(f"Archivo: {i}, Tasa: {round(allTpHitArrowsPerSession[i], 2)}", 8) 
     # METRICAS 2:
-    print(f"\nMETRICAS 2:")
+    pdfWriter.addText(f"\nMETRICAS 2:", 10)
     # Muertes por pinhos:
-    print(f"\nMEDIA GLOBAL DE MUERTES POR PINCHOS: {round(pinhosDeathsGlobal, 2)}")
-    print(f"MEDIA POR ARCHIVO DE MUERTES POR PINCHOS:")
+    pdfWriter.addText(f"\nMEDIA GLOBAL DE MUERTES POR PINCHOS: {round(pinhosDeathsGlobal, 2)}", 8)
+    pdfWriter.addText(f"MEDIA POR ARCHIVO DE MUERTES POR PINCHOS:", 8)
     for i in range(0, len(allDeathsPerPinhosPerSession)):
-        print(f"Archivo: {i}, Media: {round(allDeathsPerPinhosPerSession[i], 2)}") 
+        pdfWriter.addText(f"Archivo: {i}, Media: {round(allDeathsPerPinhosPerSession[i], 2)}", 8) 
     # Muertes por enemigos:
-    print(f"\nMEDIA GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesDeathsGlobal, 2)}")
-    print(f"MEDIA POR ARCHIVO DE MUERTES POR ENEMIGOS:")
+    pdfWriter.addText(f"\nMEDIA GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesDeathsGlobal, 2)}", 8)
+    pdfWriter.addText(f"MEDIA POR ARCHIVO DE MUERTES POR ENEMIGOS:", 8)
     for i in range(0, len(allDeathsPerEnemiesPerSession)):
-        print(f"Archivo: {i}, Media: {round(allDeathsPerEnemiesPerSession[i], 2)}") 
+        pdfWriter.addText(f"Archivo: {i}, Media: {round(allDeathsPerEnemiesPerSession[i], 2)}", 8) 
     # Muertes por camara:
-    print(f"\nMEDIA GLOBAL DE MUERTES POR CAMARA: {round(cameraDeathsGlobal, 2)}")
-    print(f"MEDIA POR ARCHIVO DE MUERTES POR CAMARA:")
+    pdfWriter.addText(f"\nMEDIA GLOBAL DE MUERTES POR CAMARA: {round(cameraDeathsGlobal, 2)}", 8)
+    pdfWriter.addText(f"MEDIA POR ARCHIVO DE MUERTES POR CAMARA:", 8)
     for i in range(0, len(allDdeathsPerCameraPersession)):
-        print(f"Archivo: {i}, Media: {round(allDdeathsPerCameraPersession[i], 2)}")
+        pdfWriter.addText(f"Archivo: {i}, Media: {round(allDdeathsPerCameraPersession[i], 2)}", 8)
     # Proporciones:
-    print(f"\nPROPORCION GLOBAL DE MUERTES POR PINCHOS: {round(pinhosProportion, 2)}")
-    print(f"PROPORCION POR ARCHIVO DE MUERTES POR PINCHOS:")
+    pdfWriter.addText(f"\nPROPORCION GLOBAL DE MUERTES POR PINCHOS: {round(pinhosProportion, 2)}", 8)
+    pdfWriter.addText(f"PROPORCION POR ARCHIVO DE MUERTES POR PINCHOS:", 8)
     for i in range(0, len(pinhosProportionsPerSession)):
-        print(f"Archivo: {i}, Media: {round(pinhosProportionsPerSession[i], 2)}%") 
-    print(f"\nPROPORCION GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesProportion, 2)}%")
-    print(f"PROPORCION POR ARCHIVO DE MUERTES POR ENEMIGOS:")
+        pdfWriter.addText(f"Archivo: {i}, Media: {round(pinhosProportionsPerSession[i], 2)}%", 8) 
+    pdfWriter.addText(f"\nPROPORCION GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesProportion, 2)}%", 8)
+    pdfWriter.addText(f"PROPORCION POR ARCHIVO DE MUERTES POR ENEMIGOS:", 8)
     for i in range(0, len(enemiesProportionsPerSession)):
-        print(f"Archivo: {i}, Media: {round(enemiesProportionsPerSession[i], 2)}%") 
-    print(f"\nPROPORCION GLOBAL DE MUERTES POR CAMARA: {round(cameraProportion, 2)}%")
-    print(f"PROPORCION POR ARCHIVO DE MUERTES POR CAMARA:")
+        pdfWriter.addText(f"Archivo: {i}, Media: {round(enemiesProportionsPerSession[i], 2)}%", 8) 
+    pdfWriter.addText(f"\nPROPORCION GLOBAL DE MUERTES POR CAMARA: {round(cameraProportion, 2)}%", 8)
+    pdfWriter.addText(f"PROPORCION POR ARCHIVO DE MUERTES POR CAMARA:", 8)
     for i in range(0, len(cameraProportionsPerSession)):
-        print(f"Archivo: {i}, Media: {round(cameraProportionsPerSession[i], 2)}%")
+        pdfWriter.addText(f"Archivo: {i}, Media: {round(cameraProportionsPerSession[i], 2)}%", 8)
     # Frecuencias:
-    print(f"\nTABLA DE FRECUENCIAS GLOBAL DE CADA OBJETO:")
-    deathObjectsGlobal = dict(sorted(deathObjectsGlobal.items(), key=lambda item: item[1], reverse=True))
+    pdfWriter.addText(f"\nTABLA DE FRECUENCIAS GLOBAL DE CADA OBJETO:", 8)
+    deathObjectsGlobal = dict(sorted(deathObjectsGlobal.items(), key = lambda item: item[1], reverse = True))
     keys = list(deathObjectsGlobal.keys())
     values = list(deathObjectsGlobal.values())
     for i in range(0, len(deathObjectsGlobal)):
-        print(f"Objeto: {keys[i]}, Veces: {values[i]}")
-    print(f"TABLA DE FRECUENCIAS POR ARCHIVO DE CADA OBJETO:")
+        pdfWriter.addText(f"Objeto: {keys[i]}, Veces: {values[i]}", 8)
+    pdfWriter.addText(f"TABLA DE FRECUENCIAS POR ARCHIVO DE CADA OBJETO:", 8)
     for i in range(0, len(deathObjectsPerSession)):
-        deathObjectsPerSession[i]=dict(sorted(deathObjectsPerSession[i].items(), key=lambda item: item[1], reverse=True))
+        deathObjectsPerSession[i] = dict(sorted(deathObjectsPerSession[i].items(), key = lambda item: item[1], reverse = True))
         keys = list(deathObjectsPerSession[i].keys())
         values = list(deathObjectsPerSession[i].values())
         for j in range(0, len(deathObjectsPerSession[i])):
-            print(f"Archivo: {i}, Objeto: {keys[j]}, Veces: {values[j]}")
-    
+            pdfWriter.addText(f"Archivo: {i}, Objeto: {keys[j]}, Veces: {values[j]}", 8)
+    # Graficos:
+    pdfWriter.addText(f"\nGRAFICOS:", 10)
+    keys = list(deathObjectsGlobal.keys())
+    values = list(deathObjectsGlobal.values())
+    pdfWriter.addGraph(keys, values)
+    pdfWriter.addText("", 25)
+    for i in range(0, len(deathObjectsPerSession)):
+        deathObjectsPerSession[i] = dict(sorted(deathObjectsPerSession[i].items(), key = lambda item: item[1], reverse = True))
+        keys = list(deathObjectsPerSession[i].keys())
+        values = list(deathObjectsPerSession[i].values())
+        pdfWriter.addGraph(keys, values)
+        pdfWriter.addText("", 25)
+
+    pdfWriter.close()
     

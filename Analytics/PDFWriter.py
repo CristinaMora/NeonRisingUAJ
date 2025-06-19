@@ -81,7 +81,7 @@ class PDFWriter:
                     1 - self.margins['left'] / self.pageWidth - self.margins['right'] / self.pageWidth,
                     graphHeightNorm
                 ])
-                graphAx.bar(categories, values, color='skyblue')
+                graphAx.bar(categories, values, color = 'orange')
                 graphAx.set_title('Grafico de Barras')
                 graphAx.set_xlabel('Categorias')
                 graphAx.set_ylabel('Valores')
