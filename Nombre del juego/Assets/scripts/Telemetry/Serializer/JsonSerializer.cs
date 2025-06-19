@@ -24,7 +24,7 @@ public class JsonSerializer : ISerializer
 
     public string initFile() { return "[\n"; }
 
-    public bool changeOfSesion(ref string content, int lastbracket)
+    public bool changeOfSession(ref string content, int lastbracket)
     {
         // Quitamos el cierre, la coma se escribira luego, pero vamos a introducir un salto de linea para diferenciar entre sesiones.
         int lastBracketIndex = content.LastIndexOf(']');

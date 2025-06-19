@@ -19,7 +19,7 @@ public class PlayerDiesEvent : GameEvent
     {
         this.position = position;
         this.cause = cause;
-        this.name = name
+        this.name = name;
     }
 
     public override string ToCSV()

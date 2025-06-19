@@ -118,7 +118,7 @@ public class FilePersistence : Persistence
                 else
                 {
                     int lastBracketIndex = 0;
-                    if (serializer.changeOfSesion(ref content, lastBracketIndex))
+                    if (serializer.changeOfSession(ref content, lastBracketIndex))
                     {
                         File.WriteAllText(localPath, content + "\n");
                     }

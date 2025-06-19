@@ -21,7 +21,7 @@ public class CSVSerializer : ISerializer
         return "";
     }
 
-    public bool changeOfSesion(ref string content, int lastbracket) { return false; }
+    public bool changeOfSession(ref string content, int lastbracket) { return false; }
 
     public string endFile(string c) { return ""; }
 }

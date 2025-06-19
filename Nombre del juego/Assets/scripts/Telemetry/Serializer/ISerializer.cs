@@ -9,7 +9,7 @@ public interface ISerializer
 
     string initFile();
 
-    bool changeOfSesion(ref string content, int lastbracket);
+    bool changeOfSession(ref string content, int lastbracket);
 
     string endFile(string content);
 }
