@@ -8,12 +8,14 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
+using UnityEditor.MemoryProfiler;
 using UnityEngine;
 using static Tracker;
 
 public class DatabasePersistence : Persistence
 {
     private string webhookURL;  // URL del webhook para enviar los eventos a un servidor (Google Sheets)
+    private bool connection = true; // Flag para cuando no se ha conectado al database
 
     public DatabasePersistence( string _webhookURL = null) : base()
     {
@@ -62,7 +64,12 @@ public class DatabasePersistence : Persistence
     /// </summary>
     public override void FlushQueue(List<Event> eventList)
     {
-        foreach(var e in eventList)
+        if (connection)
+        {
+            Debug.LogError("Critical error: Data base not connected");
+            return;
+        }
+        foreach (var e in eventList)
         {
             if (e != null)
                 SendEvent(e);
@@ -83,6 +90,7 @@ public class DatabasePersistence : Persistence
             }
             else
             {
+                connection = false;
                 Debug.LogError("Firebase not available: " + task.Result);
             }
         });

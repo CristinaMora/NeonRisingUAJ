@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using UnityEditor.MemoryProfiler;
 using UnityEngine;
 
 public class WebPersistence : Persistence
 {
     private string webhookURL;  // URL del webhook para enviar los eventos a un servidor (Google Sheets)
+    private bool connection = true; // Flag para cuando no se ha conectado a web
 
     public WebPersistence(string _webhookURL = null) : base()
     {
@@ -53,6 +55,12 @@ public class WebPersistence : Persistence
     /// </summary>
     public override void FlushQueue(List<Event> eventList)
     {
+        if (connection)
+        {
+            Debug.LogError("Critical error: Web not connected");
+            return;
+        }
+
         foreach (var e in eventList)
         {
             if (e != null)
@@ -74,6 +82,7 @@ public class WebPersistence : Persistence
             }
             else
             {
+                connection = false;
                 Debug.LogError("Firebase not available: " + task.Result);
             }
         });

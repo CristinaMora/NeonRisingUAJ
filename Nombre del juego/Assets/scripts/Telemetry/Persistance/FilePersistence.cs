@@ -26,7 +26,7 @@ public class FilePersistence : Persistence
     {
         if (!createdFile)
         {
-            Debug.Log("Critical error: File not created");
+            Debug.LogError("Critical error: File not created");
             return;
         }
         try
