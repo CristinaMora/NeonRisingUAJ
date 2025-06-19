@@ -41,7 +41,7 @@ public class EnemyAttack : MonoBehaviour
             newBullet = Instantiate(_bullet, _origin.transform.position, Quaternion.identity);
             newBullet.GetComponent<Rigidbody2D>().velocity = force * dir.normalized;
             _firstShoot = true;
-            newBullet.GetComponent<Bullet_Controller_Component>().bulletOwner = this;
+            newBullet.GetComponent<Bullet_Controller_Component>().bulletOwner = gameObject;
         }
     }
     void Start()

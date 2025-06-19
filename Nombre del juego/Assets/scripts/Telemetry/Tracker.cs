@@ -117,14 +117,13 @@ public class Tracker
                 Debug.Log("Estado del hilo: " + eventThread.ThreadState);
                 writeSignal.WaitOne(); // Espera que se le indique que guarde
 
-                List<Event> flushQueue = new List<Event>();
-                for (int i = 0; i < eventQueue.Count; i++)
-                {
-                    flushQueue.Add(eventQueue.Front());
-                    eventQueue.Pop();
-                }
+                Debug.Log("EVENTQUEUE: " + eventQueue.Count);
+                List<Event> flushlist = new List<Event>();
+                while (eventQueue.TryDequeue(out Event e))
+                    flushlist.Add(e);
+                Debug.Log("FLUSHQUEUE: " + flushlist.Count);
 
-                persistenceObject.FlushQueue(flushQueue);
+                persistenceObject.FlushQueue(flushlist);
             }
             Debug.Log("Final del hilo");
         }

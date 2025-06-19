@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 public class CircularQueue<T>
 {
@@ -29,15 +30,17 @@ public class CircularQueue<T>
 		inUse++;
 	}
 
-	public void Pop() 
+	public T Pop() 
 	{
 		if(inUse == 0)
 		{
 			throw new InvalidOperationException("Buffer is empty");
 		}
+		T item = data[readPos++];
 		data[readPos] = default;
 		readPos = (readPos + 1) % capacity;
 		inUse--;
+		return item;
 	}
 
 	public T Front()
@@ -62,7 +65,6 @@ public class CircularQueue<T>
 		inUse--;
 		return true;
 	}
-
 
 	public int Count => inUse;
 
