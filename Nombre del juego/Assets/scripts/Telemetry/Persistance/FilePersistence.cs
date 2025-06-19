@@ -7,14 +7,13 @@ public class FilePersistence : Persistence
 {
     private string localPath;   // Ruta en donde se guarda el archivo con los datos
     private ISerializer serializer; // Formato de los eventos
-	
+
     public FilePersistence(ISerializer _format) : base()
     {
-		serializer = _format;
+        serializer = _format;
 
         CreateLocalLogFile();
     }
-
 
     /// <summary>
     /// Saca de la cola cuando se superen cierto elementos y escribe en el archivo en el formato
@@ -26,32 +25,32 @@ public class FilePersistence : Persistence
 
         try
         {
-			int i = 0;
-			bool isFirst = IsFirstJsonEntry();
+            int i = 0;
+            bool isFirst = IsFirstJsonEntry();
 
-			StringBuilder batch = new StringBuilder();
+            StringBuilder batch = new StringBuilder();
 
-			while (eventQueue.TryDequeue(out Event e))
-			{
-				if (e != null)
-				{
+            while (eventQueue.TryDequeue(out Event e))
+            {
+                if (e != null)
+                {
                     string data;
 
                     data = serializer.Serialize(e); //Serializamos el evento
                     serializer.AppendSerializedData(batch, data, ref isFirst);  //Escribimos el evento siguiendo el formato
 
-				}
-				i++;
-			}
+                }
+                i++;
+            }
 
-			if (batch.Length > 0)
-				File.AppendAllText(localPath, batch.ToString());
-		}
-		catch (Exception ex)
-		{
-			Debug.LogError($"[FilePersistence] Error while writing the events in the file: {ex.Message}\n");
-		}
-        
+            if (batch.Length > 0)
+                File.AppendAllText(localPath, batch.ToString());
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FilePersistence] Error while writing the events in the file: {ex.Message}\n");
+        }
+
     }
 
     /// <summary>
@@ -65,18 +64,18 @@ public class FilePersistence : Persistence
 
     private bool IsFirstJsonEntry()
     {
-		try
-		{
-			if (!File.Exists(localPath)) return true;
+        try
+        {
+            if (!File.Exists(localPath)) return true;
 
-			string content = File.ReadAllText(localPath).Trim();
+            string content = File.ReadAllText(localPath).Trim();
 
-			return content == "[" || content == "[\n";
-		}
-		catch(Exception ex) 
-		{
-			throw new InvalidOperationException("Critical error: Unable to read JSON log file.", ex);
-		}
+            return content == "[" || content == "[\n";
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Critical error: Unable to read JSON log file.", ex);
+        }
     }
 
 
@@ -108,7 +107,7 @@ public class FilePersistence : Persistence
                     File.WriteAllText(localPath, serializer.initFile());
                 }
                 //Existe y tiene texto
-                else 
+                else
                 {
                     int lastBracketIndex = 0;
                     if (serializer.changeOfSesion(ref content, lastBracketIndex))
