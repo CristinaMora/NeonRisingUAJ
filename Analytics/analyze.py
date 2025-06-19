@@ -284,12 +284,14 @@ if __name__ == '__main__':
         print(f"Archivo: {i}, Media: {round(cameraProportionsPerSession[i], 2)}%")
     # Frecuencias:
     print(f"\nTABLA DE FRECUENCIAS GLOBAL DE CADA OBJETO:")
+    deathObjectsGlobal = dict(sorted(deathObjectsGlobal.items(), key=lambda item: item[1], reverse=True))
     keys = list(deathObjectsGlobal.keys())
     values = list(deathObjectsGlobal.values())
     for i in range(0, len(deathObjectsGlobal)):
         print(f"Objeto: {keys[i]}, Veces: {values[i]}")
     print(f"TABLA DE FRECUENCIAS POR ARCHIVO DE CADA OBJETO:")
     for i in range(0, len(deathObjectsPerSession)):
+        deathObjectsPerSession[i]=dict(sorted(deathObjectsPerSession[i].items(), key=lambda item: item[1], reverse=True))
         keys = list(deathObjectsPerSession[i].keys())
         values = list(deathObjectsPerSession[i].values())
         for j in range(0, len(deathObjectsPerSession[i])):
