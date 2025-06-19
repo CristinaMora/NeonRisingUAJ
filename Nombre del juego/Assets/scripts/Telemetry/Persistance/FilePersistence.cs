@@ -32,7 +32,7 @@ public class FilePersistence : Persistence
         try
         {
             int i = 0;
-            bool isFirst = IsFirstJsonEntry();
+            bool isFirst = IsFirstEntry();
 
             StringBuilder batch = new StringBuilder();
 
@@ -68,11 +68,12 @@ public class FilePersistence : Persistence
         File.AppendAllText(localPath, serializer.endFile(content));
     }
 
-    private bool IsFirstJsonEntry()
+    private bool IsFirstEntry()
     {
         
         try
         {
+            //Si no existe es que es la primera entrada
             if (!File.Exists(localPath)) return true;
 
             string content = File.ReadAllText(localPath).Trim();
@@ -81,7 +82,7 @@ public class FilePersistence : Persistence
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("Critical error: Unable to read JSON log file.", ex);
+            throw new InvalidOperationException("Critical error: Unable to read log file.", ex);
         }
     }
 

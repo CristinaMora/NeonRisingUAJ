@@ -11,10 +11,12 @@ public class WebPersistence : Persistence
 {
     private string webhookURL;  // URL del webhook para enviar los eventos a un servidor (Google Sheets)
     private bool connection = true; // Flag para cuando no se ha conectado a web
+    private ISerializer serializer;
 
     public WebPersistence(string _webhookURL = null) : base()
     {
         webhookURL = _webhookURL;
+        serializer = new JsonSerializer();
 
         InitiateDatabaseConnection();
     }
@@ -24,12 +26,13 @@ public class WebPersistence : Persistence
     /// </summary>
     public override async void SendEvent(Event e)
     {
-        string json = e.ToJSON();
+        string evt = serializer.Serialize(e);
 
-        Debug.Log("Sending event to Google Sheets: " + json);
+
+        Debug.Log("Sending event to Google Sheets: " + evt);
 
         using HttpClient client = new HttpClient();
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var content = new StringContent(evt, Encoding.UTF8, "application/json");
 
         try
         {

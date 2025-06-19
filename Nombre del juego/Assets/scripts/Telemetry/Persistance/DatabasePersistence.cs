@@ -16,10 +16,12 @@ public class DatabasePersistence : Persistence
 {
     private string webhookURL;  // URL del webhook para enviar los eventos a un servidor (Google Sheets)
     private bool connection = true; // Flag para cuando no se ha conectado al database
+    private ISerializer serializer;
 
     public DatabasePersistence( string _webhookURL = null) : base()
     {
         webhookURL = _webhookURL;
+        serializer = new JsonSerializer();
 
         InitiateDatabaseConnection();
     }
@@ -31,15 +33,15 @@ public class DatabasePersistence : Persistence
     public override void SendEvent(Event e)
     {
         // Firebase solo permite envio de datos con formato JSON
-        string json = e.ToJSON();
+        string evt = serializer.Serialize(e);
 
-        Debug.Log("Sending event to Firebase: " + json);
+        Debug.Log("Sending event to Firebase: " + evt);
 
         DatabaseReference dbRef = FirebaseDatabase.DefaultInstance.RootReference;
 
         dbRef.Child("events")
             .Push()
-            .SetRawJsonValueAsync(json)
+            .SetRawJsonValueAsync(evt)
             .ContinueWithOnMainThread(task =>
             {
                 if (task.IsFaulted || task.IsCanceled)

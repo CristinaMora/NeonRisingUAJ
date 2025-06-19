@@ -45,5 +45,5 @@ public abstract class Event
         return $"{sessionId},{eventType},{timestamp}";
     }
 
-    // Otros formatos...
+    
 }
