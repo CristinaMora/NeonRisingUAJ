@@ -17,21 +17,21 @@ public class Life_System_Component : MonoBehaviour
         _currentlife = _maxlife;
     }
 
-    public void Damage(int Damage)
+    public void Damage(int Damage, GameObject enemy = null)
     {
         _currentlife -= Damage;
         if (_currentlife <= 0 )
         {
-            Die();
+            Die(enemy);
         }
     }
 
-    private void Die()
+    private void Die(GameObject enemy = null)
     {
         if (this.gameObject.GetComponent<Player_Life_Component>())
         {
             PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(GameManager.Instance.gameId, transform.position,
-                DeathCause.Enemy);
+                DeathCause.Enemy, enemy.name);
             Tracker.Instance.TrackEvent(playerDiesEvent);
             GameManager.Instance.PlayerDies();
         }

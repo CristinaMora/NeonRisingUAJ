@@ -17,12 +17,12 @@ public class EnemyAttack : MonoBehaviour
     [SerializeField]
     private GameObject _origin;                         //objeto vacio de donde nace la bala y el raycast
     private bool _firstShoot=false;                     //booleano con el que vemos si hemos si el enemigo ha disparado por primera vez
-    private bool _canShoot = true;                      //condición necesaria que permite o no el disparo
+    private bool _canShoot = true;                      //condiciï¿½n necesaria que permite o no el disparo
     private LayerMask _Default;                          // capa del suelo
     private GameObject _player;
     
     private float _atCD=1;                                  //Retardo entre disparos
-    private void ShotAble()                         //función que nos dice si se puede disparar o no
+    private void ShotAble()                         //funciï¿½n que nos dice si se puede disparar o no
     {
 
         if (Physics2D.Raycast(_origin.transform.position, (_playerPosition.position -_origin.transform.position), (_playerPosition.position - _origin.transform.position).magnitude, _Default))         //raycast lanzado desde un punto del enemigo y 
@@ -41,6 +41,7 @@ public class EnemyAttack : MonoBehaviour
             newBullet = Instantiate(_bullet, _origin.transform.position, Quaternion.identity);
             newBullet.GetComponent<Rigidbody2D>().velocity = force * dir.normalized;
             _firstShoot = true;
+            newBullet.GetComponent<Bullet_Controller_Component>().bulletOwner = this;
         }
     }
     void Start()
@@ -55,7 +56,7 @@ public class EnemyAttack : MonoBehaviour
         _playerPosition = _player.transform;
         ShotAble();      
         _atCD = _atCD + Time.deltaTime;
-        dir = _playerPosition.position + - _origin.transform.position;              // pongo un offset para que apunte un poco más arriba, para predecir el movimiento del personaje (+ _aimingUp * _offset)
+        dir = _playerPosition.position + - _origin.transform.position;              // pongo un offset para que apunte un poco mï¿½s arriba, para predecir el movimiento del personaje (+ _aimingUp * _offset)
         if (_atCD>0 && _firstShoot == false &&_canShoot==true)
         {
             Shoot(dir, 10.0f);

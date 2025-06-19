@@ -58,18 +58,23 @@ class GameDefinition(Definition):
         self.timeGameStart = 0
         self.timeGameEnd = 0
         self.gameLenght = 0
-        self.pinhosDeadCount = 0 # 0
-        self.enemyDeadCount = 0 # 1
-        self.cameraDeadData = [] # 2
-        self.arrowsDamage = []
-        self.arrowsTp = []
+        # METRICAS 1:
+        self.arrowsDamage = [] # Diccionario con la posicion y si la flecha de ataque a hitteado o no.
+        self.arrowsTp = [] # Diccionario con la posicion y si la flecha de tp a hitteado o no.
+        # METRCIAS 2:
+        self.pinhosDeadCount = 0 # 0. Contiene las veces que muere por pinchos.
+        self.enemyDeadCount = 0 # 1. Contiene las veces que muere por enemigos.
+        self.cameraDeadData = [] # 2. Contiene posicion donde muere el jugador.
+        self.objects = [] # 
 
     def consumeEvent(self, event) -> bool:
         if event['eventType'] == "PlayerDies": # Evento de muerte del jugador
             if event['cause'] == 0: # Muere por pinchos
                 self.pinhosDeadCount += 1
+                self.objects.append(dict(position = event['position'], name = event['name']))
             elif event['cause'] == 1: # Muere por enemigos
                 self.enemyDeadCount += 1
+                self.objects.append(dict(position = event['position'], name = event['name']))
             elif event['cause'] == 2: # Muere por camara
                 self.cameraDeadData.append(event['position'])
         elif event['eventType'] == "ArrowShotEvent": # Evento de flecha

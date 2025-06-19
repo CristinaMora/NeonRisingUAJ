@@ -81,6 +81,7 @@ def returnData(stack):
     pinhosDeads = 0
     enemiesDeads = 0
     cameraDeads = 0
+    deathsObjects = []
     
     for session in stack[0].sessions:
         for game in session.games:
@@ -97,6 +98,8 @@ def returnData(stack):
             pinhosDeads += game.pinhosDeadCount
             enemiesDeads += game.enemyDeadCount
             cameraDeads += len(game.cameraDeadData) # Esto es diferente porque en definitions guardamos solo la posicion.
+            for object in game.objects: # Guardamos los objetos que han causado la muerte.
+                deathsObjects[object['name']] += 1
 
     return {
             "dangeMissedArrows": dangeArrowMiss,
@@ -106,7 +109,8 @@ def returnData(stack):
             "allDeathsPerPinhos": pinhosDeads,
             "allDeathsPerEnemies": enemiesDeads,
             "allDeathsPerCamera": cameraDeads,
-            "totalSessions": totalSessions
+            "totalSessions": totalSessions,
+            "deathObjects": deathsObjects
         }
 
 if __name__ == '__main__':
@@ -133,6 +137,8 @@ if __name__ == '__main__':
     pinhosProportionsPerSession = [] # Lista de proporciones de muertes por pinchos en cada sesion.
     enemiesProportionsPerSession = [] # Lista de proporciones de muertes por enemigos en cada sesion.
     cameraProportionsPerSession = [] # Lista de proporciones de muertes por camara en cada sesion.
+    
+    objectsDeathsPerSession = [] # Lista con los diccionarios de objetos que han matado al jugador en cada sesion.
     # OTROS:
     totalSessions = [] # Numero de sesiones de cada archivo.
     
@@ -172,6 +178,8 @@ if __name__ == '__main__':
                     enemiesProportionsPerSession.append(resultsPerArchive['allDeathsPerEnemies'] / allsSum)
                 if not resultsPerArchive['allDeathsPerCamera'] == 0 and not allsSum == 0:
                     cameraProportionsPerSession.append(resultsPerArchive['allDeathsPerCamera'] / allsSum)
+                # METRICAS 2: guardar los objetos que han matado al jugador.
+                objectsDeathsPerSession.append(resultsPerArchive['deathObjects'])
                 
 
     # METRICAS 1: calculo de las proporciones generales.
@@ -205,6 +213,12 @@ if __name__ == '__main__':
     pinhosProportion = accPinhosDeaths / accSum if accSum != 0 else 0
     enemiesProportion = accEnemiesDeaths / accSum if accSum != 0 else 0
     cameraProportion = accCameraDeaths / accSum if accSum != 0 else 0
+    
+    # METRICAS 2: computo total de los objetos que han matado al jugador.
+    deathObjectsGlobal = []
+    for i in range(0, len(objectsDeathsPerSession)):
+        for name, count in objectsDeathsPerSession[i]:
+            deathObjectsGlobal[name] += count
 
 
     # Escritura de resultados:
@@ -261,4 +275,6 @@ if __name__ == '__main__':
     print(f"\nPROPORCION GLOBAL DE MUERTES POR CAMARA: {round(cameraProportion, 2)}%")
     print(f"PROPORCION POR SESION DE MUERTES POR CAMARA:")
     for i in range(0, len(cameraProportionsPerSession)):
-        print(f"Sesion: {i} Media: {round(cameraProportionsPerSession[i], 2)}%") 
+        print(f"Sesion: {i} Media: {round(cameraProportionsPerSession[i], 2)}%")
+    # Frecuencias:
+    print(f"aaaaaaaaaaaaaaaaaaaaaaaaaa")
