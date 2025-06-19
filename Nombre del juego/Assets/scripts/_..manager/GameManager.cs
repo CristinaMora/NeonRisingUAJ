@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
     public void StartMatch()
     {
         _arcade = false;
-        //Al darle al botón carga la escena principal
+        //Al darle al botï¿½n carga la escena principal
 
         Debug.Log("Juego Principal");
 
@@ -77,7 +77,7 @@ public class GameManager : MonoBehaviour
     public void StartMatch2()
     {
         _arcade = false;
-        //Al darle al botón carga el tutorial
+        //Al darle al botï¿½n carga el tutorial
         SceneManager.LoadScene("Tutorial");
         AudioManager.Instance.Stop("Menu");
         AudioManager.Instance.Play("Tutorial");
@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviour
     public void StartArcade()
     {
         _arcade = true;
-        //Al darle al botón carga el modo arcade
+        //Al darle al botï¿½n carga el modo arcade
         SceneManager.LoadScene("ArcadeScene");
         AudioManager.Instance.Stop("Menu");
         AudioManager.Instance.Play("Arcade");
@@ -134,9 +134,9 @@ public class GameManager : MonoBehaviour
         _bow.SetActive(false);
         OnPlayerDefeat();
     }
-    public void OnPlyerDamage(int damage)
+    public void OnPlyerDamage(int damage, GameObject enemy = null)
     {
-        _myPlayer_Life_Component.Damage(damage);
+        _myPlayer_Life_Component.Damage(damage, enemy);
 
     }
     public void EnemyDamage(int Damage, GameObject enemy)

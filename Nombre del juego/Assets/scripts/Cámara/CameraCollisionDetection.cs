@@ -11,7 +11,7 @@ public class CameraCollisionDetection : MonoBehaviour
         if (collision.GetComponent<PlayerMovement>() && collision.gameObject.activeSelf)
         {
             PlayerDiesEvent playerDiesEvent = new PlayerDiesEvent(GameManager.Instance.gameId, collision.gameObject.transform.position, 
-                DeathCause.Camera);
+                DeathCause.Camera, "camera");
             Tracker.Instance.TrackEvent(playerDiesEvent);
             GameManager.Instance.PlayerDies();
             collision.gameObject.SetActive(false);

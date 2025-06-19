@@ -18,11 +18,12 @@ public class Bullet_Controller_Component : MonoBehaviour
     private Light2D _myLight;
     [SerializeField]
     private int _damage=1;
+    public GameObject bulletOwner;
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.GetComponent<Player_Life_Component>())
         {
-            GameManager.Instance.OnPlyerDamage(_damage);
+            GameManager.Instance.OnPlyerDamage(_damage, bulletOwner);
             
         }
         Destroy(this.gameObject);
