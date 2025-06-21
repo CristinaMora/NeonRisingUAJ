@@ -1,5 +1,4 @@
 using System.Text;
-using UnityEngine;
 
 public class CSVSerializer : ISerializer
 {
@@ -13,15 +12,15 @@ public class CSVSerializer : ISerializer
         batch.AppendLine(data);
     }
 
-    public string localPathExtension() { return ".csv"; }
+    public string GetLocalPathExtension() { return ".csv"; }
 
-    public string initFile()
+    public string InitFile()
     {
         //Para CSV no tiene porqué hacer nada al principio
         return "";
     }
 
-    public bool changeOfSession(ref string content, int lastbracket) { return false; }
+    public bool ChangeOfSession(ref string content, int lastbracket) { return false; }
 
-    public string endFile(string c) { return ""; }
+    public string EndFile(string c) { return ""; }
 }

@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class Persistence
 {
     public Persistence()
-    {}
+    { }
 
     // --- SEND EVENT ---
     /// <summary>
@@ -26,5 +24,4 @@ public class Persistence
     /// Cierra archivos y conexiones
     /// </summary>
     public virtual void EndPersistance() { }
-
 }

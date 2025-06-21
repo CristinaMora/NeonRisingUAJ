@@ -6,15 +6,16 @@ using UnityEngine;
 
 public class FilePersistence : Persistence
 {
-    private string localPath;   // Ruta en donde se guarda el archivo con los datos
-    private ISerializer serializer; // Formato de los eventos
-    private bool createdFile = true; // Flag para cuando no se ha creado un archivo
+    private string localPath;           // Ruta en donde se guarda el archivo con los datos
+    private ISerializer serializer;     // Formato de los eventos
+    private bool createdFile = false;   // Flag para cuando no se ha creado un archivo
+    private bool isFirstEntry = true;   // Si es la primera entrada de evento
 
     public FilePersistence(ISerializer _format) : base()
     {
         serializer = _format;
-
         CreateLocalLogFile();
+        isFirstEntry = IsFirstEntry();
     }
 
     /// <summary>
@@ -31,9 +32,6 @@ public class FilePersistence : Persistence
         }
         try
         {
-            int i = 0;
-            bool isFirst = IsFirstEntry();
-
             StringBuilder batch = new StringBuilder();
 
             foreach (var e in eventList)
@@ -43,10 +41,8 @@ public class FilePersistence : Persistence
                     string data;
 
                     data = serializer.Serialize(e); //Serializamos el evento
-                    serializer.AppendSerializedData(batch, data, ref isFirst);  //Escribimos el evento siguiendo el formato
-
+                    serializer.AppendSerializedData(batch, data, ref isFirstEntry);  //Escribimos el evento siguiendo el formato
                 }
-                i++;
             }
 
             if (batch.Length > 0)
@@ -65,12 +61,11 @@ public class FilePersistence : Persistence
     public override void EndPersistance()
     {
         string content = File.ReadAllText(localPath).TrimEnd();
-        File.AppendAllText(localPath, serializer.endFile(content));
+        File.AppendAllText(localPath, serializer.EndFile(content));
     }
 
     private bool IsFirstEntry()
     {
-        
         try
         {
             //Si no existe es que es la primera entrada
@@ -86,7 +81,6 @@ public class FilePersistence : Persistence
         }
     }
 
-
     /// <summary>
     /// Crea y abre el archivo donde volcar los datos
     /// </summary>
@@ -94,14 +88,14 @@ public class FilePersistence : Persistence
     {
         try
         {
-            localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename() + serializer.localPathExtension();
+            localPath = Application.dataPath + "/" + ConfigManager.GetLogFilename() + serializer.GetLocalPathExtension();
             // Para cada formato a�adimos la extensi�n correspondiente.
 
             // Si no existe el archivo, lo creamos y escribimos el inicio según el formato
             if (!File.Exists(localPath))
             {
                 // No existe
-                File.WriteAllText(localPath, serializer.initFile());
+                File.WriteAllText(localPath, serializer.InitFile());
             }
             // Existe
             else
@@ -111,27 +105,26 @@ public class FilePersistence : Persistence
                 // Existe pero esta vacio
                 if (string.IsNullOrWhiteSpace(content))
                 {
-                    //Escribimos el inicio
-                    File.WriteAllText(localPath, serializer.initFile());
+                    // Escribimos el inicio
+                    File.WriteAllText(localPath, serializer.InitFile());
                 }
-                //Existe y tiene texto
+                // Existe y tiene texto
                 else
                 {
                     int lastBracketIndex = 0;
-                    if (serializer.changeOfSession(ref content, lastBracketIndex))
+                    if (serializer.ChangeOfSession(ref content, lastBracketIndex))
                     {
                         File.WriteAllText(localPath, content + "\n");
                     }
                 }
             }
 
+            createdFile = true;
             Debug.Log("Path to telemetry log file: " + localPath);
         }
         catch (Exception ex)
         {
             Debug.LogError($"[FilePersistence] There was an error while opening the file: {ex.Message}");
-            createdFile = false;
         }
-
     }
 }

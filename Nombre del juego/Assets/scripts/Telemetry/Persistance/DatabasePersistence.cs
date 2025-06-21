@@ -1,16 +1,8 @@
 using Firebase;
 using Firebase.Database;
 using Firebase.Extensions;
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Net.Mail;
-using System.Text;
-using UnityEditor.MemoryProfiler;
 using UnityEngine;
-using static Tracker;
 
 public class DatabasePersistence : Persistence
 {
@@ -18,7 +10,7 @@ public class DatabasePersistence : Persistence
     private bool connection = true; // Flag para cuando no se ha conectado al database
     private ISerializer serializer;
 
-    public DatabasePersistence( string _webhookURL = null) : base()
+    public DatabasePersistence(string _webhookURL = null) : base()
     {
         webhookURL = _webhookURL;
         serializer = new JsonSerializer();
@@ -97,5 +89,4 @@ public class DatabasePersistence : Persistence
             }
         });
     }
-
 }

@@ -16,7 +16,7 @@ public class Tracker
     public string SessionId { get { return sessionId; } } // ID de la sesion (para acceder desde fuera de la clase)
 
     public string localPath;   // Ruta en donde se guarda el archivo con los datos
-                                // de telemetria (local)
+                               // de telemetria (local)
     private string webhookURL;  // URL del webhook para enviar los eventos a un servidor (Google Sheets)
 
     Format format;              // Formato de escritura de los eventos
@@ -26,7 +26,6 @@ public class Tracker
     // Opcional: Serializacion y persistencia en una hebra independiente de la del videojuego
     private Thread eventThread;                                     // Hilo con bucle que gestiona la cola de eventos
     private volatile bool runningThread = true;                     // False para dejar de ejecutar el hilo (Al cerrar el juego)
-    private volatile bool flushQueue = false;                       // Booleano para que flushee la cola solo cuando queremos
     private AutoResetEvent writeSignal = new AutoResetEvent(false); // Senial mandada cuando queremos que se escriba un evento (por tiempo o flush)
 
     // Opcional: Manejar eventos muestreables (solamente escribir cada cierto tiempo)
@@ -48,7 +47,6 @@ public class Tracker
     public Tracker()
     {
         _instance = this;
-
 
         sessionId = Guid.NewGuid().ToString();
         format = ConfigManager.GetFormat();
@@ -72,9 +70,7 @@ public class Tracker
         // Creacion del persistance object
         switch (persType)
         {
-
             case PersistenceType.LOCAL:
-              
                 persistenceObject = new FilePersistence(serializeFormat);
                 break;
             case PersistenceType.DATABASE:
@@ -87,6 +83,10 @@ public class Tracker
 
         SessionStartEvent sessionStartEvent = new SessionStartEvent();
         TrackEvent(sessionStartEvent);
+
+        // Forzar escritura inmediata con el SessionStart
+        writeSignal.Set();
+
         InitiateLoop();
     }
 
@@ -100,7 +100,7 @@ public class Tracker
         // Crear un hilo que contenga un bucle
         runningThread = true;
         // Creamos el hilo y definimos el metodo con el bucle
-        eventThread = new Thread(eventThreadLoop);
+        eventThread = new Thread(EventThreadLoop);
         // Inicia la ejecucion del hilo
         eventThread.Start();
     }
@@ -108,7 +108,7 @@ public class Tracker
     /// <summary>
     /// Bucle del hilo lectura-escritura
     /// </summary>
-    private void eventThreadLoop()
+    private void EventThreadLoop()
     {
         try
         {
@@ -117,11 +117,11 @@ public class Tracker
                 Debug.Log("Estado del hilo: " + eventThread.ThreadState);
                 writeSignal.WaitOne(); // Espera que se le indique que guarde
 
-                Debug.Log("EVENTQUEUE: " + eventQueue.Count);
+                Debug.Log("EVENT_QUEUE: " + eventQueue.Count);
                 List<Event> flushlist = new List<Event>();
                 while (eventQueue.TryDequeue(out Event e))
                     flushlist.Add(e);
-                Debug.Log("FLUSHQUEUE: " + flushlist.Count);
+                Debug.Log("FLUSH_QUEUE: " + flushlist.Count);
 
                 persistenceObject.FlushQueue(flushlist);
             }
@@ -167,7 +167,7 @@ public class Tracker
         // Si el hilo sigue activo
         if (eventThread != null && eventThread.IsAlive)  // Espera a que el hilo termine para continuar
             eventThread.Join();
-        
+
         // Cierra archivos y conexiones
         persistenceObject.EndPersistance();
     }

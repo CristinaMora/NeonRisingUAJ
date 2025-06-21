@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Text;
-using UnityEngine;
-
 
 public class JsonSerializer : ISerializer
 {
@@ -20,11 +16,11 @@ public class JsonSerializer : ISerializer
         isFirst = false;
     }
 
-    public string localPathExtension() { return ".json"; }
+    public string GetLocalPathExtension() { return ".json"; }
 
-    public string initFile() { return "[\n"; }
+    public string InitFile() { return "[\n"; }
 
-    public bool changeOfSession(ref string content, int lastbracket)
+    public bool ChangeOfSession(ref string content, int lastbracket)
     {
         // Quitamos el cierre, la coma se escribira luego, pero vamos a introducir un salto de linea para diferenciar entre sesiones.
         int lastBracketIndex = content.LastIndexOf(']');
@@ -36,7 +32,8 @@ public class JsonSerializer : ISerializer
         return lastBracketIndex != -1;
     }
 
-    public string endFile(string c) {
+    public string EndFile(string c)
+    {
         // Solo escribir si no existe la llave final
         // Escribe "]"
         if (!c.EndsWith("]")) return "]";
