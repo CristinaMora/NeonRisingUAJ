@@ -286,7 +286,7 @@ if __name__ == '__main__':
     pdfWriter.addGraph(keys, values)
     pdfWriter.addText("", 25)
     for i in range(0, len(deathObjectsPerSession)):
-        pdfWriter.addText(f"SESIÓN {i}:", 10)
+        pdfWriter.addText(f"ARCHIVO {i}:", 10)
         pdfWriter.addText("", 25)
         deathObjectsPerSession[i] = dict(sorted(deathObjectsPerSession[i].items(), key = lambda item: item[1], reverse = True))
         keys = list(deathObjectsPerSession[i].keys())
