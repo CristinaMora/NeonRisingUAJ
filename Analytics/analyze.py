@@ -246,22 +246,22 @@ if __name__ == '__main__':
     pdfWriter.addText(f"\nMÉTRICAS 2:", 10)
     # Muertes por pinhos:
     pdfWriter.addText("", 10)
-    pdfWriter.addText(f"MEDIA GLOBAL DE MUERTES POR PINCHOS: {round(pinhosDeathsGlobal, 2)}", 8)
-    pdfWriter.addText(f"MEDIA POR ARCHIVO DE MUERTES POR PINCHOS:", 8)
+    pdfWriter.addText(f"TASA GLOBAL DE MUERTES POR PINCHOS: {round(pinhosDeathsGlobal, 2)}", 8)
+    pdfWriter.addText(f"TASA POR ARCHIVO DE MUERTES POR PINCHOS:", 8)
     for i in range(0, len(allDeathsPerPinhosPerSession)):
-        pdfWriter.addText(f"    Archivo: {i}, Media: {round(allDeathsPerPinhosPerSession[i], 2)}", 8) 
+        pdfWriter.addText(f"    Archivo: {i}, Tasa: {round(allDeathsPerPinhosPerSession[i], 2)}", 8) 
     # Muertes por enemigos:
     pdfWriter.addText("", 10)
-    pdfWriter.addText(f"MEDIA GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesDeathsGlobal, 2)}", 8)
-    pdfWriter.addText(f"MEDIA POR ARCHIVO DE MUERTES POR ENEMIGOS:", 8)
+    pdfWriter.addText(f"TASA GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesDeathsGlobal, 2)}", 8)
+    pdfWriter.addText(f"TASA POR ARCHIVO DE MUERTES POR ENEMIGOS:", 8)
     for i in range(0, len(allDeathsPerEnemiesPerSession)):
-        pdfWriter.addText(f"    Archivo: {i}, Media: {round(allDeathsPerEnemiesPerSession[i], 2)}", 8) 
+        pdfWriter.addText(f"    Archivo: {i}, Tasa: {round(allDeathsPerEnemiesPerSession[i], 2)}", 8) 
     # Muertes por camara:
     pdfWriter.addText("", 10)
-    pdfWriter.addText(f"MEDIA GLOBAL DE MUERTES POR CÁMARA: {round(cameraDeathsGlobal, 2)}", 8)
-    pdfWriter.addText(f"MEDIA POR ARCHIVO DE MUERTES POR CÁMARA:", 8)
+    pdfWriter.addText(f"TASA GLOBAL DE MUERTES POR CÁMARA: {round(cameraDeathsGlobal, 2)}", 8)
+    pdfWriter.addText(f"TASA POR ARCHIVO DE MUERTES POR CÁMARA:", 8)
     for i in range(0, len(allDdeathsPerCameraPersession)):
-        pdfWriter.addText(f"    Archivo: {i}, Media: {round(allDdeathsPerCameraPersession[i], 2)}", 8)
+        pdfWriter.addText(f"    Archivo: {i}, Tasa: {round(allDdeathsPerCameraPersession[i], 2)}", 8)
     # Frecuencias:
     pdfWriter.addText("", 10)
     pdfWriter.addText(f"TABLA DE FRECUENCIAS GLOBAL DE CADA OBJETO:", 8)
@@ -279,14 +279,14 @@ if __name__ == '__main__':
             pdfWriter.addText(f"    Archivo: {i}, Objeto: {keys[j]}, Veces: {values[j]}", 8)
     # Graficas:
     pdfWriter.addText(f"GRÁFICAS:", 10)
-    pdfWriter.addText(f"GLobal:", 10)
+    pdfWriter.addText(f"GLOBAL:", 10)
     pdfWriter.addText("", 25)
     keys = list(deathObjectsGlobal.keys())
     values = list(deathObjectsGlobal.values())
     pdfWriter.addGraph(keys, values)
     pdfWriter.addText("", 25)
     for i in range(0, len(deathObjectsPerSession)):
-        pdfWriter.addText(f"sesion {i}:", 10)
+        pdfWriter.addText(f"SESIÓN {i}:", 10)
         pdfWriter.addText("", 25)
         deathObjectsPerSession[i] = dict(sorted(deathObjectsPerSession[i].items(), key = lambda item: item[1], reverse = True))
         keys = list(deathObjectsPerSession[i].keys())
@@ -294,6 +294,7 @@ if __name__ == '__main__':
         pdfWriter.addGraph(keys, values)
         pdfWriter.addText("", 25)
     # Mapa de calor:
+    pdfWriter.addText(f"MAPA DE CALOR:", 10)
     pdfWriter.addImage("death_positions.png", 10, 4)
     # Cierre de archivo.
     pdfWriter.close()
