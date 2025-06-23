@@ -246,22 +246,22 @@ if __name__ == '__main__':
     pdfWriter.addText(f"\nMÉTRICAS 2:", 10)
     # Muertes por pinhos:
     pdfWriter.addText("", 10)
-    pdfWriter.addText(f"TASA GLOBAL DE MUERTES POR PINCHOS: {round(pinhosDeathsGlobal, 2)}", 8)
-    pdfWriter.addText(f"TASA POR ARCHIVO DE MUERTES POR PINCHOS:", 8)
+    pdfWriter.addText(f"CANTIDAD MEDIA GLOBAL DE MUERTES POR PINCHOS: {round(pinhosDeathsGlobal, 2)}", 8)
+    pdfWriter.addText(f"CANTIDAD MEDIA POR ARCHIVO DE MUERTES POR PINCHOS:", 8)
     for i in range(0, len(allDeathsPerPinhosPerSession)):
-        pdfWriter.addText(f"    Archivo: {i}, Tasa: {round(allDeathsPerPinhosPerSession[i], 2)}", 8) 
+        pdfWriter.addText(f"    Archivo: {i}, Cantidad: {round(allDeathsPerPinhosPerSession[i], 2)}", 8) 
     # Muertes por enemigos:
     pdfWriter.addText("", 10)
-    pdfWriter.addText(f"TASA GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesDeathsGlobal, 2)}", 8)
-    pdfWriter.addText(f"TASA POR ARCHIVO DE MUERTES POR ENEMIGOS:", 8)
+    pdfWriter.addText(f"CANTIDAD MEDIA GLOBAL DE MUERTES POR ENEMIGOS: {round(enemiesDeathsGlobal, 2)}", 8)
+    pdfWriter.addText(f"CANTIDAD MEDIA POR ARCHIVO DE MUERTES POR ENEMIGOS:", 8)
     for i in range(0, len(allDeathsPerEnemiesPerSession)):
-        pdfWriter.addText(f"    Archivo: {i}, Tasa: {round(allDeathsPerEnemiesPerSession[i], 2)}", 8) 
+        pdfWriter.addText(f"    Archivo: {i}, Cantidad: {round(allDeathsPerEnemiesPerSession[i], 2)}", 8) 
     # Muertes por camara:
     pdfWriter.addText("", 10)
-    pdfWriter.addText(f"TASA GLOBAL DE MUERTES POR CÁMARA: {round(cameraDeathsGlobal, 2)}", 8)
-    pdfWriter.addText(f"TASA POR ARCHIVO DE MUERTES POR CÁMARA:", 8)
+    pdfWriter.addText(f"CANTIDAD MEDIA GLOBAL DE MUERTES POR CÁMARA: {round(cameraDeathsGlobal, 2)}", 8)
+    pdfWriter.addText(f"CANTIDAD MEDIA POR ARCHIVO DE MUERTES POR CÁMARA:", 8)
     for i in range(0, len(allDdeathsPerCameraPersession)):
-        pdfWriter.addText(f"    Archivo: {i}, Tasa: {round(allDdeathsPerCameraPersession[i], 2)}", 8)
+        pdfWriter.addText(f"    Archivo: {i}, Cantidad: {round(allDdeathsPerCameraPersession[i], 2)}", 8)
     # Frecuencias:
     pdfWriter.addText("", 10)
     pdfWriter.addText(f"TABLA DE FRECUENCIAS GLOBAL DE CADA OBJETO:", 8)
