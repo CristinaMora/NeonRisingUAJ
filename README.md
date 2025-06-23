@@ -10,7 +10,7 @@ El material de entrega se encuentra en los siguientes enlaces:
 
 - [Juego instrumentalizado con el sistema de telemetría](https://github.com/CristinaMora/NeonRisingUAJ/releases/tag/telemetry)
 
-- [Archivos de datos generados por el sistema de telemetría](https://github.com/CristinaMora/NeonRisingUAJ/tree/Pruebas-uaj/Analitycs/data)
+- [Archivos de datos generados por el sistema de telemetría](https://github.com/CristinaMora/NeonRisingUAJ/tree/Pruebas-uaj/Analytics/data)
 
 - [Scripts de Python para realizar el cálculo de las métricas a partir del archivo de trazas](https://github.com/CristinaMora/NeonRisingUAJ/tree/Pruebas-uaj/Analytics), para probar con los archivos de datos generados de forma automatizada (importante tener previamente instalado `Python 3.11`):
 
