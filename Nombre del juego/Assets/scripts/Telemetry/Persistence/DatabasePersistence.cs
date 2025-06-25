@@ -4,26 +4,30 @@ using Firebase.Extensions;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DatabasePersistence : Persistence
+public class DatabasePersistence : IPersistence
 {
-    private string webhookURL;  // URL del webhook para enviar los eventos a un servidor (Google Sheets)
-    private bool connection = true; // Flag para cuando no se ha conectado al database
+    private string webhookURL;          // URL del webhook para enviar los eventos a un servidor (Google Sheets)
+    private bool connection = false;    // Flag para cuando se ha conectado al database
     private ISerializer serializer;
 
     public DatabasePersistence(string _webhookURL = null) : base()
     {
         webhookURL = _webhookURL;
         serializer = new JsonSerializer();
-
-        InitiateDatabaseConnection();
     }
 
     /// <summary>
     /// Envia el evento a Firebase
     /// </summary>
     /// <param name="e"></param>
-    public override void SendEvent(Event e)
+    public void Send(TrackerEvent e)
     {
+        if (!connection)
+        {
+            Debug.LogError("No conection with Firebase. Not sent");
+            return;
+        }
+
         // Firebase solo permite envio de datos con formato JSON
         string evt = serializer.Serialize(e);
 
@@ -49,30 +53,45 @@ public class DatabasePersistence : Persistence
                     }
                 }
                 else if (task.IsCompleted)
+                {
                     Debug.Log("Event correctly sent to Firebase");
+                }
             });
     }
 
     /// <summary>
     /// Saca de la cola de eventos y los envia a la base de datos de Firebase
     /// </summary>
-    public override void FlushQueue(List<Event> eventList)
+    public void Flush(List<TrackerEvent> eventList)
     {
-        if (connection)
+        if (!connection)
         {
             Debug.LogError("Critical error: Data base not connected");
             return;
         }
+
         foreach (var e in eventList)
         {
             if (e != null)
-                SendEvent(e);
+            {
+                Send(e);
+            }
         }
+    }
+
+    public void InitPersistence()
+    {
+        InitiateDatabaseConnection();
+    }
+
+    public void EndPersistence()
+    {
+        // No hace falta
     }
 
     /// <summary>
     /// Posibilidad de iniciar una conexion con un servidor para enviar
-    /// las trazas de datos y guardarlos en una base de datos
+    /// las trazas de datos y guardarlos en una base de datos.
     /// </summary>
     private void InitiateDatabaseConnection()
     {
@@ -80,11 +99,11 @@ public class DatabasePersistence : Persistence
         {
             if (task.Result == DependencyStatus.Available)
             {
+                connection = true;
                 Debug.Log("Firebase available.");
             }
             else
             {
-                connection = false;
                 Debug.LogError("Firebase not available: " + task.Result);
             }
         });

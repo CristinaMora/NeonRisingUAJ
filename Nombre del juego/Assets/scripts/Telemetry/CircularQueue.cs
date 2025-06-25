@@ -35,6 +35,7 @@ public class CircularQueue<T>
         {
             throw new InvalidOperationException("Buffer is empty");
         }
+
         T item = data[readPos++];
         data[readPos] = default;
         readPos = (readPos + 1) % capacity;
@@ -45,7 +46,9 @@ public class CircularQueue<T>
     public T Front()
     {
         if (inUse == 0)
+        {
             throw new InvalidOperationException("Buffer is empty");
+        }
 
         return data[readPos];
     }

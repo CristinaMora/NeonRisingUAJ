@@ -7,7 +7,7 @@ public class ArrowShotEvent : GameEvent
     public enum ArrowType { Damage, Teleport }
     public ArrowType arrowType;  // Tipo de flecha
     public Vector3 position;     // Posicion desde donde se disparo
-    public bool hasHit;          // Si cumplio su propósito
+    public bool hasHit;          // Si cumplio su proposito
     public ArrowShotEvent(string gameId, ArrowType arrowType, Vector3 pos, bool hasHit)
         : base(gameId, "ArrowShotEvent")
     {
@@ -21,4 +21,3 @@ public class ArrowShotEvent : GameEvent
         return base.ToCSV() + $",{arrowType},{position.x}:{position.y}:{position.z},{hasHit}";
     }
 }
-

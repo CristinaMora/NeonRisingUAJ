@@ -2,9 +2,9 @@ using System.IO;
 using UnityEngine;
 
 /// <summary>
-/// Clase para gestionar la configuración del sistema de telemetría.  
-/// Opcional: Configuración del sistema de telemetría por datos (fichero de configuración,
-/// configuración desde el editor de Unity...)
+/// Clase para gestionar la configuracion del sistema de telemetria.  
+/// Opcional: Configuracion del sistema de telemetria por datos (fichero de configuracion,
+/// configuracion desde el editor de Unity...)
 /// </summary>
 public static class ConfigManager
 {

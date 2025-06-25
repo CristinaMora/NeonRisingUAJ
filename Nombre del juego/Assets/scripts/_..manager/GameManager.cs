@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
     {
        
 
-        Tracker.Instance.DestroyTracker();
+        Tracker.Instance.End();
 
 #if UNITY_EDITOR
 		EditorApplication.isPlaying = false;

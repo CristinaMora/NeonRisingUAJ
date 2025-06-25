@@ -1,9 +1,11 @@
 using System;
+
 [Serializable]
-public class GameEvent : Event
+public class GameEvent : TrackerEvent
 {
 	public string gameId;
-	public GameEvent(string gameId,string eventName) : base(eventName)
+
+	public GameEvent(string gameId, string eventName) : base(eventName)
 	{
 		this.gameId = gameId;
 	}

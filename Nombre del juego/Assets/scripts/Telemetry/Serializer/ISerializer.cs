@@ -1,8 +1,12 @@
 using System.Text;
 
+/// <summary>
+/// Interfaz para distintos tipos de formato (JSON, CSV, etc.).
+/// </summary>
 public interface ISerializer
 {
-    string Serialize(Event e);
+    string Serialize(TrackerEvent e);
+
     void AppendSerializedData(StringBuilder batch, string data, ref bool isFirst);
 
     string GetLocalPathExtension();

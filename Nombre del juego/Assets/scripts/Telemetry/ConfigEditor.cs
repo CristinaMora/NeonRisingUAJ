@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+
 /// <summary>
-/// Clase para editar la configuraci�n de la telemetria desde el inspector de Unity.
+/// Clase para editar la configuracion de la telemetria desde el inspector de Unity.
 /// Para usarla, añade este script a un GameObject en la escena.
 /// </summary>
 public class ConfigEditor : MonoBehaviour
@@ -21,9 +22,7 @@ public class ConfigEditor : MonoBehaviour
     [Tooltip("Cantidad de eventos que deben acumularse antes de ser escritos. Debe ser un número entero positivo.")]
     [SerializeField] private string eventsToWriteSizeInput;
 
-
     private int EVENTS_TO_WRITE_SIZE;
-
 
     static private ConfigEditor _instance;
     private Tracker _tracker;
@@ -33,7 +32,6 @@ public class ConfigEditor : MonoBehaviour
         ConfigManager.SetLogFilename(logFilename);
         ConfigManager.SetFormat(format);
         ConfigManager.SetPersistenceType(persistenceType);
-
 
         if (int.TryParse(eventsToWriteSizeInput, out int parsedValue) && parsedValue > 0)
         {
@@ -49,9 +47,11 @@ public class ConfigEditor : MonoBehaviour
         {
             _instance = this;
             if (_tracker == null)
+            {
                 _tracker = new Tracker();
+                _tracker.Init();
+            }
         }
-
 
         DontDestroyOnLoad(gameObject);
     }

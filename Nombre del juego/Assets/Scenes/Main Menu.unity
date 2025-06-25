@@ -2350,7 +2350,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
       propertyPath: logFilename
-      value: Filename1
+      value: Filename
       objectReference: {fileID: 0}
     - target: {fileID: 6092370007789410119, guid: 1845be8065c76dc44b82edcae7cf00c4, type: 3}
       propertyPath: persistenceType

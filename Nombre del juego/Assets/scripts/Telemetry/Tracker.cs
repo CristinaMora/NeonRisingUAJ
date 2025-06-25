@@ -22,7 +22,7 @@ public class Tracker
     Format format;              // Formato de escritura de los eventos
     PersistenceType persType;   // Tipo de persistencia de los eventos
 
-    private CircularQueue<Event> eventQueue;
+    private CircularQueue<TrackerEvent> eventQueue;
     // Opcional: Serializacion y persistencia en una hebra independiente de la del videojuego
     private Thread eventThread;                                     // Hilo con bucle que gestiona la cola de eventos
     private volatile bool runningThread = true;                     // False para dejar de ejecutar el hilo (Al cerrar el juego)
@@ -32,8 +32,8 @@ public class Tracker
     // Opcional: Posibilidad de poder desactivar el seguimiento de determinados tipos de eventos.
     // HashSet<Event> disabledEvents = new HashSet<Event>();
 
-    private Persistence persistenceObject;
-    private ISerializer serializeFormat;
+    private IPersistence persistenceObject = null;
+    private ISerializer serializeFormat = null;
 
     static private Tracker _instance;   // Acceso privado al singleton
     static public Tracker Instance      // Acceso publico al singleton
@@ -47,14 +47,17 @@ public class Tracker
     public Tracker()
     {
         _instance = this;
+    }
 
+    public void Init()
+    {
         sessionId = Guid.NewGuid().ToString();
         format = ConfigManager.GetFormat();
         persType = ConfigManager.GetPersistenceType();
         EVENTS_TO_WRITE_SIZE = ConfigManager.GetEventsToWriteSize();
         webhookURL = ConfigManager.GetWebhookURL();
 
-        eventQueue = new CircularQueue<Event>(ConfigManager.GetEventsToWriteSize());
+        eventQueue = new CircularQueue<TrackerEvent>(ConfigManager.GetEventsToWriteSize());
 
         // Creation of the Serializer
         switch (format)
@@ -81,17 +84,22 @@ public class Tracker
                 break;
         }
 
+        if (persistenceObject == null)
+        {
+            Debug.LogWarning("PersistenceObject is null");
+            return;
+        }
+
+        // Crea archivos o conexiones
+        persistenceObject.InitPersistence();
+
+        // Crea el evento de inicio de sesion
         SessionStartEvent sessionStartEvent = new SessionStartEvent();
         TrackEvent(sessionStartEvent);
-
-        // Forzar escritura inmediata con el SessionStart
-        writeSignal.Set();
 
         InitiateLoop();
     }
 
-    // HACERLA CIRCULAR
-    // Gestion de la cola de eventos
     /// <summary>
     /// Inicia el hilo de lectura-escritura con bucle usando el ConcurrentQueue
     /// </summary>
@@ -118,12 +126,14 @@ public class Tracker
                 writeSignal.WaitOne(); // Espera que se le indique que guarde
 
                 Debug.Log("EVENT_QUEUE: " + eventQueue.Count);
-                List<Event> flushlist = new List<Event>();
-                while (eventQueue.TryDequeue(out Event e))
+                List<TrackerEvent> flushlist = new List<TrackerEvent>();
+                while (eventQueue.TryDequeue(out TrackerEvent e))
+                {
                     flushlist.Add(e);
+                }
                 Debug.Log("FLUSH_QUEUE: " + flushlist.Count);
 
-                persistenceObject.FlushQueue(flushlist);
+                persistenceObject.Flush(flushlist);
             }
             Debug.Log("Final del hilo");
         }
@@ -138,7 +148,7 @@ public class Tracker
     /// hace flush dependiendo del tipo de persistencia
     /// </summary>
     /// <param name="e">Evento a meter a la cola.</param> 
-    public void TrackEvent(Event e)
+    public void TrackEvent(TrackerEvent e)
     {
         eventQueue.Push(e);
 
@@ -153,8 +163,9 @@ public class Tracker
     /// <summary>
     /// Metodo para cerrar los archivos y acabar con el bucle del hilo
     /// </summary>
-    public void DestroyTracker()
+    public void End()
     {
+        // Enviar el ultimo evento de fin de sesion
         SessionEndEvent sessionEndEvent = new SessionEndEvent();
         TrackEvent(sessionEndEvent);
 
@@ -165,10 +176,13 @@ public class Tracker
         writeSignal.Set();
 
         // Si el hilo sigue activo
-        if (eventThread != null && eventThread.IsAlive)  // Espera a que el hilo termine para continuar
+        // Espera a que el hilo termine para continuar
+        if (eventThread != null && eventThread.IsAlive)
+        {
             eventThread.Join();
+        }
 
-        // Cierra archivos y conexiones
-        persistenceObject.EndPersistance();
+        // Cierra archivos o conexiones
+        persistenceObject.EndPersistence();
     }
 }

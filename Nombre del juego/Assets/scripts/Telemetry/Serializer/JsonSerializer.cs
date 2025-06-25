@@ -1,17 +1,19 @@
 using System.Text;
 
+/// <summary>
+/// Formato JSON.
+/// </summary>
 public class JsonSerializer : ISerializer
 {
-    public string Serialize(Event e)
-    {
-        return e.ToJSON();
-    }
+    public string Serialize(TrackerEvent e) { return e.ToJSON(); }
 
     public void AppendSerializedData(StringBuilder batch, string data, ref bool isFirst)
     {
         if (!isFirst)
+        {
             batch.Append(",\n");
-
+        }
+            
         batch.Append(data);
         isFirst = false;
     }
@@ -22,7 +24,9 @@ public class JsonSerializer : ISerializer
 
     public bool ChangeOfSession(ref string content, int lastbracket)
     {
-        // Quitamos el cierre, la coma se escribira luego, pero vamos a introducir un salto de linea para diferenciar entre sesiones.
+        // Quitamos el cierre, la coma se escribira luego,
+        // pero vamos a introducir un salto de linea para
+        // diferenciar entre sesiones
         int lastBracketIndex = content.LastIndexOf(']');
         if (lastBracketIndex != -1)
         {
@@ -35,8 +39,13 @@ public class JsonSerializer : ISerializer
     public string EndFile(string c)
     {
         // Solo escribir si no existe la llave final
-        // Escribe "]"
-        if (!c.EndsWith("]")) return "]";
-        else return "";
+        if (!c.EndsWith("]"))
+        {
+            return "]";
+        }
+        else
+        {
+            return "";
+        }
     }
 }
