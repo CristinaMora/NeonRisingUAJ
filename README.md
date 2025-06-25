@@ -1,5 +1,8 @@
 # Grupo 01
 
+> [!IMPORTANT]
+> Para el correcto uso de la herramienta de telemetría el usuario debe cerciorarse de que el componente “ConfigEditor” sea el primero en ejecutar su Awake. Para ello se puede modificar el orden de ejecución dentro de “ProjectSettings” > “Script Execution Order” y hacer que “ConfigEditor” tenga un valor por encima de los demás componentes.
+
 El material de entrega se encuentra en los siguientes enlaces:
 
 - [Documento de diseño de la evaluación, métricas y eventos](https://docs.google.com/document/d/11No24L4QlzMVcvrEAbuMexVIQcMBNANlsSzRxQic0t0/edit?usp=sharing)
@@ -8,7 +11,7 @@ El material de entrega se encuentra en los siguientes enlaces:
 
 - [Sistema de telemetría](https://github.com/CristinaMora/NeonRisingUAJ/tree/Pruebas-uaj/Nombre%20del%20juego/Assets/scripts/Telemetry)
 
-- [Juego instrumentalizado con el sistema de telemetría](https://github.com/CristinaMora/NeonRisingUAJ/releases/tag/telemetry)
+- [Juego instrumentalizado con el sistema de telemetría](https://github.com/CristinaMora/NeonRisingUAJ/releases/tag/telemetry) -> Se pueden observar las trazas en el archivo `NeonRising_Data > Filename.json` después de haber ejecutado.
 
 - [Archivos de datos generados por el sistema de telemetría](https://github.com/CristinaMora/NeonRisingUAJ/tree/Pruebas-uaj/Analytics/data)
 
@@ -17,6 +20,8 @@ El material de entrega se encuentra en los siguientes enlaces:
     ```ps
     .\analyze.bat
     ```
+
+Hay un ejemplo de salida en [GitHub](https://github.com/CristinaMora/NeonRisingUAJ/blob/Pruebas-uaj/Analytics/output.pdf).
 
 ## Partes opcionales
 
@@ -37,10 +42,6 @@ código. -> Se ha creado la opción con CSV para persistencia local
 - [CameraCollisionDetection.cs](https://github.com/CristinaMora/NeonRisingUAJ/blob/Pruebas-uaj/Nombre%20del%20juego/Assets/scripts/C%C3%A1mara/CameraCollisionDetection.cs)
 - [Spike_Platform_Component.cs](https://github.com/CristinaMora/NeonRisingUAJ/blob/Pruebas-uaj/Nombre%20del%20juego/Assets/scripts/Platform/Spike_Platform_Component.cs)
 - [Life_System_Component.cs](https://github.com/CristinaMora/NeonRisingUAJ/blob/Pruebas-uaj/Nombre%20del%20juego/Assets/scripts/PLAYER/Life_System_Component.cs)
-
-## Ejemplo de build y análisis
-
-Se ha grabado un [vídeo](https://drive.google.com/file/d/1Cbg4Ni1uTpjVBAVr3-ahbI5sPdFQdvCa/view?usp=drive_link) que incluye desde el proceso de elegir la configuración desde el editor de Unity y buildear el juego hasta la ejecución del script de análisis.
 
 ## Otros
 
